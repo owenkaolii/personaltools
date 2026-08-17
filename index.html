@@ -29,18 +29,26 @@ body{
 }
 
 /* ── the line ── */
-.plate{max-width:520px;width:100%;text-align:center}
+.plate{max-width:620px;width:100%;text-align:center}
 
 .line{
   font-family:var(--display);
-  font-size:clamp(23px,5.2vw,33px);
   font-weight:500;
-  line-height:1.62;
-  letter-spacing:0.012em;
   color:var(--ink);
-  transition:opacity 1.1s ease, letter-spacing 1.1s ease;
 }
-.line em{font-style:italic;color:var(--ink)}
+.cl{
+  display:block;
+  font-size:clamp(30px,7.6vw,40px);
+  line-height:1.30;
+  letter-spacing:0.014em;
+  opacity:0;
+  transform:translateY(14px);
+  animation:settle 1.5s cubic-bezier(.22,.61,.36,1) forwards;
+}
+.cl:nth-child(1){animation-delay:.15s}
+.cl:nth-child(2){animation-delay:.55s}
+.cl:nth-child(3){animation-delay:.95s}
+@keyframes settle{to{opacity:1;transform:none}}
 
 /* doors — indistinguishable until touched */
 .door{
@@ -58,7 +66,7 @@ body{
 /* ── the seam: tap target on the final stop ── */
 .seam{
   cursor:pointer;color:inherit;
-  padding:0 .12em;
+  padding:.35em .45em;margin:-.35em -.35em;
   transition:color .6s ease,text-shadow .6s ease;
 }
 .seam:hover{color:var(--cinnabar)}
@@ -106,11 +114,15 @@ body.open .entry:nth-of-type(2){transition-delay:.56s}
 body.open .foot{opacity:.85;color:var(--ink2)}
 
 @media(max-width:520px){
-  .line{line-height:1.58}
-  .entry .n{font-size:18px}
+  body{padding:2rem 1.3rem}
+  .cl{line-height:1.34;margin-bottom:.16em}
+  .entry .n{font-size:19px}
+  .entry{padding:.85rem 0}
+  body.open .veil{margin-top:2.2rem}
 }
 @media(prefers-reduced-motion:reduce){
   *{transition-duration:.01ms!important}
+  .cl{animation:none;opacity:1;transform:none}
 }
 </style>
 </head>
@@ -126,9 +138,9 @@ body.open .foot{opacity:.85;color:var(--ink2)}
        around whichever words should lead where.
   ────────────────────────────────────────────────────────────── -->
   <div class="line">
-    Time is <a class="door" data-go="calendar.html">counted</a>;
-    change is <a class="door" data-go="iching.html">consulted</a>;<br>
-    the rest is fog<span class="seam" id="seam" title="">.</span>
+    <span class="cl">Time is <a class="door" data-go="calendar.html">counted</a></span>
+    <span class="cl">change is <a class="door" data-go="iching.html">consulted</a></span>
+    <span class="cl">the rest is fog<span class="seam" id="seam">.</span></span>
   </div>
 
   <div class="veil" id="veil">
