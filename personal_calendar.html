@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calendar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Spectral:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#14110B;--ink:#ECE2CE;--ink2:#B9AE97;--ink3:#847A67;
+  --rule:#332C1E;--rule2:#221D14;--cinnabar:#CB4632;
+  --serif:'Spectral',Georgia,serif;--display:'Cormorant Garamond',Georgia,serif;
+  /* paper */
+  --p-ink:#1A1814;--p-line:#D8D3C9;--p-soft:#EAE6DE;--p-mute:#9A958C;--p-faint:#DAD5CB;--p-sun:#B4231F;
+}
+body{background:var(--bg);color:var(--ink);font-family:var(--serif);padding:2rem 1.4rem 4rem}
+
+.wrap{max-width:1120px;margin:0 auto}
+.back{display:inline-flex;align-items:center;gap:8px;margin-bottom:1.5rem;background:none;border:none;
+  font-family:var(--serif);font-style:italic;font-size:14px;color:var(--cinnabar);cursor:pointer;padding:0;text-decoration:none}
+.back:hover{color:var(--ink)}
+.masthead{padding-bottom:1.1rem;margin-bottom:1.5rem;border-bottom:1px solid var(--rule)}
+.masthead h1{font-family:var(--display);font-size:34px;font-weight:600;line-height:1;margin-bottom:6px}
+.masthead p{font-style:italic;font-size:14px;color:var(--ink3)}
+
+.controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:1.1rem}
+.controls label{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3)}
+.ctl{font-family:var(--serif);font-size:14px;padding:8px 11px;border-radius:3px;
+  border:1px solid var(--rule);background:#1B170F;color:var(--ink);cursor:pointer}
+.ctl:focus{outline:none;border-color:var(--cinnabar)}
+.btn{font-family:var(--display);font-size:15px;font-weight:600;padding:8px 17px;border-radius:3px;
+  border:1px solid var(--cinnabar);background:none;color:var(--cinnabar);cursor:pointer;letter-spacing:.02em}
+.btn:hover{background:var(--cinnabar);color:#14110B}
+.hint{font-size:12.5px;color:var(--ink3);font-style:italic;line-height:1.65;margin-bottom:1.8rem;
+  border-left:1px solid var(--rule);padding-left:12px}
+.hint b{font-style:normal;font-weight:500;color:var(--ink2)}
+
+/* ── the printable sheet: always paper-coloured ── */
+.sheet{
+  width:297mm;height:210mm;background:#fff;color:var(--p-ink);
+  margin:0 auto 26px;padding:11mm 12mm 10mm;
+  display:flex;flex-direction:column;
+  font-family:'DM Sans',var(--serif);
+  box-shadow:0 4px 26px rgba(0,0,0,.4);
+}
+.head{display:flex;align-items:flex-end;justify-content:space-between;
+  padding-bottom:5mm;margin-bottom:4mm;border-bottom:1.5px solid var(--p-ink)}
+.month{font-family:var(--display);font-size:36pt;font-weight:600;line-height:.92;letter-spacing:-.01em}
+.year{font-family:var(--display);font-size:36pt;font-weight:500;color:var(--p-faint);line-height:.92}
+
+table{width:100%;height:100%;border-collapse:collapse;table-layout:fixed}
+thead th{font-family:var(--display);font-size:10pt;font-weight:600;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--p-mute);padding:0 0 3mm;text-align:left;width:14.285%}
+thead th.sun{color:var(--p-sun)}
+tbody td{border-top:1px solid var(--p-line);border-left:1px solid var(--p-soft);
+  padding:2mm 2mm 0;vertical-align:top;position:relative}
+tbody td:first-child{border-left:none}
+tbody tr:last-child td{border-bottom:1px solid var(--p-line)}
+.num{font-family:var(--display);font-size:22pt;font-weight:600;line-height:1;margin-bottom:1.5mm}
+.num.sun{color:var(--p-sun)}
+td.blank{background:#FCFBF8}
+.rule-line{position:absolute;left:2mm;right:2mm;height:1px;background:var(--p-soft)}
+.foot{display:flex;justify-content:space-between;align-items:center;padding-top:3.5mm;
+  font-size:8pt;color:var(--p-mute);letter-spacing:.06em;font-family:var(--display)}
+
+@media print{
+  @page{size:A4 landscape;margin:0}
+  html,body{background:#fff;padding:0;margin:0}
+  .wrap>*:not(#pages){display:none!important}
+  .sheet{margin:0;box-shadow:none;page-break-after:always}
+  .sheet:last-child{page-break-after:auto}
+}
+@media(max-width:1180px){.sheet{transform-origin:top center;transform:scale(.60);margin-bottom:-66mm}}
+@media(max-width:760px){.sheet{transform:scale(.34);margin-bottom:-128mm}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="index.html">&larr; back</a>
+  <div class="masthead">
+    <h1>Calendar</h1>
+    <p>One month to a page &mdash; landscape, for printing</p>
+  </div>
+
+  <div class="controls">
+    <label for="year">Year</label>
+    <input class="ctl" type="number" id="year" min="1900" max="2200" step="1" style="width:88px">
+    <label for="from">From</label>
+    <select class="ctl" id="from"></select>
+    <label for="to">to</label>
+    <select class="ctl" id="to"></select>
+    <button class="btn" onclick="build()">Set</button>
+    <button class="btn" onclick="window.print()">Print</button>
+  </div>
+
+  <div class="hint">
+    <b>Printing.</b> Choose A4, landscape, margins set to none or minimum, and turn off the browser's headers and footers. Each month prints on its own sheet.
+  </div>
+
+  <div id="pages"></div>
+</div>
+
+<script>
+"use strict";
+var MONTHS=["January","February","March","April","May","June","July","August","September","October","November","December"];
+var DAYS=["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
+
+function fillSelects(){
+  var html="";
+  for(var i=0;i<12;i++)html+='<option value="'+i+'">'+MONTHS[i]+'</option>';
+  document.getElementById("from").innerHTML=html;
+  document.getElementById("to").innerHTML=html;
+  var now=new Date();
+  document.getElementById("year").value=now.getFullYear();
+  document.getElementById("from").value=now.getMonth();
+  document.getElementById("to").value=11;
+}
+
+function monthSheet(year,m){
+  var first=new Date(year,m,1);
+  var offset=(first.getDay()+6)%7;              // Monday-start
+  var days=new Date(year,m+1,0).getDate();
+  var cells=[];
+  for(var i=0;i<offset;i++)cells.push(null);
+  for(var d=1;d<=days;d++)cells.push(d);
+  while(cells.length%7!==0)cells.push(null);
+  var weeks=cells.length/7;
+
+  var ruleCount=weeks>=6?2:3;
+  var ruleTop=weeks>=6?46:40;
+  var ruleGap=weeks>=6?24:19;
+
+  var html='<div class="sheet"><div class="head">'+
+    '<div class="month">'+MONTHS[m]+'</div><div class="year">'+year+'</div></div>'+
+    '<table><thead><tr>';
+  for(var i=0;i<7;i++)html+='<th'+(i===6?' class="sun"':'')+'>'+DAYS[i]+'</th>';
+  html+='</tr></thead><tbody>';
+  for(var w=0;w<weeks;w++){
+    html+='<tr>';
+    for(var i=0;i<7;i++){
+      var v=cells[w*7+i];
+      if(v===null){html+='<td class="blank"></td>';continue;}
+      var rules="";
+      for(var r=0;r<ruleCount;r++)rules+='<div class="rule-line" style="top:'+(ruleTop+r*ruleGap)+'%"></div>';
+      html+='<td><div class="num'+(i===6?' sun':'')+'">'+v+'</div>'+rules+'</td>';
+    }
+    html+='</tr>';
+  }
+  html+='</tbody></table><div class="foot"><div>'+MONTHS[m]+' '+year+'</div><div>Week begins Monday</div></div></div>';
+  return html;
+}
+
+function build(){
+  var y=parseInt(document.getElementById("year").value);
+  if(isNaN(y)||y<1900||y>2200){y=new Date().getFullYear();document.getElementById("year").value=y;}
+  var f=parseInt(document.getElementById("from").value);
+  var t=parseInt(document.getElementById("to").value);
+  if(t<f){var x=f;f=t;t=x;document.getElementById("from").value=f;document.getElementById("to").value=t;}
+  var out="";
+  for(var m=f;m<=t;m++)out+=monthSheet(y,m);
+  document.getElementById("pages").innerHTML=out;
+}
+
+fillSelects();
+build();
+</script>
+</body>
+</html>
