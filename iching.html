@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>I Ching Reference</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Spectral:ital,wght@0,300;0,400;0,500;1,400&family=Noto+Serif+TC:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#14110B;        /* deep warm ink */
+    --bg2:#1D1810;       /* lifted panel */
+    --bg3:#272015;       /* hover */
+    --ink:#ECE2CE;       /* paper-cream text */
+    --ink2:#AE9F84;      /* faded ink */
+    --ink3:#796D56;      /* dim */
+    --rule:#332C1E;      /* hairline */
+    --rule2:#473D2A;     /* stronger rule */
+    --cinnabar:#CB4632;  /* the single accent */
+    --cinnabar-soft:rgba(203,70,50,0.14);
+    --gold:var(--cinnabar);   /* alias: existing markup references --gold */
+    --serif:'Spectral',Georgia,serif;
+    --display:'Cormorant Garamond',Georgia,serif;
+    --han:'Noto Serif TC','Spectral',serif;
+    --radius:3px;
+  }
+  body{
+    font-family:var(--serif);background:var(--bg);color:var(--ink);
+    font-size:16px;line-height:1.7;max-width:760px;margin:0 auto;
+    padding:1.25rem 1.1rem 4rem;
+    background-image:radial-gradient(ellipse at top,rgba(60,48,30,0.35),transparent 70%);
+    background-attachment:fixed;
+  }
+
+  /* ── MASTHEAD ── */
+  .masthead{display:flex;align-items:center;gap:16px;padding-bottom:1.1rem;margin-bottom:1.4rem;border-bottom:1px solid var(--rule2);position:relative}
+  .seal{flex-shrink:0;width:54px;height:54px;border:2px solid var(--cinnabar);border-radius:5px;display:flex;align-items:center;justify-content:center;background:var(--cinnabar-soft)}
+  .seal span{font-family:var(--han);font-size:30px;font-weight:600;color:var(--cinnabar);line-height:1}
+  .mast-text h1{font-family:var(--display);font-size:34px;font-weight:600;letter-spacing:0.01em;line-height:1;margin-bottom:5px;color:var(--ink)}
+  .mast-text h1 .han{font-family:var(--han);font-size:24px;font-weight:500;color:var(--ink2);margin-left:8px}
+  .subtitle{font-family:var(--serif);font-style:italic;font-size:14px;color:var(--ink3);letter-spacing:0.01em}
+
+  /* ── BACK ── */
+  .back-btn{display:none;align-items:center;gap:8px;margin-bottom:1.1rem;background:none;border:none;
+    font-family:var(--serif);font-style:italic;font-size:14px;color:var(--cinnabar);cursor:pointer;padding:0;letter-spacing:0.01em}
+  .back-btn.active{display:inline-flex}
+  .back-btn:hover{color:var(--ink)}
+
+  /* ── TABLE (almanac grid) ── */
+  .table-wrap{overflow-x:auto;border:1px solid var(--rule2);border-radius:var(--radius)}
+  table{width:100%;border-collapse:collapse;table-layout:fixed;background:var(--bg2)}
+  .t-corner{background:var(--bg);padding:8px 6px;font-family:var(--serif);font-style:italic;font-size:10px;color:var(--ink3);text-align:center;width:74px;border-right:1px solid var(--rule2);border-bottom:1px solid var(--rule2);line-height:1.4}
+  .t-head{background:var(--bg);padding:9px 2px;text-align:center;border-left:1px solid var(--rule);border-bottom:1px solid var(--rule2);line-height:1.5}
+  .t-head .h-sym{display:block;font-size:17px;color:var(--cinnabar);margin-bottom:2px}
+  .t-head .h-hz{display:block;font-family:var(--han);font-size:13px;color:var(--ink);font-weight:500}
+  .t-head .h-py{display:block;font-family:var(--serif);font-style:italic;font-size:10px;color:var(--ink3)}
+  .t-head .h-en{display:block;font-size:9px;color:var(--ink3);letter-spacing:0.02em}
+  .t-row-label{background:var(--bg);padding:7px 6px;border-top:1px solid var(--rule);border-right:1px solid var(--rule2);white-space:nowrap;text-align:center;line-height:1.5;width:74px}
+  .t-row-label .h-sym{display:block;font-size:17px;color:var(--cinnabar);margin-bottom:2px}
+  .t-row-label .h-hz{display:block;font-family:var(--han);font-size:13px;color:var(--ink);font-weight:500}
+  .t-row-label .h-py{display:block;font-family:var(--serif);font-style:italic;font-size:10px;color:var(--ink3)}
+  .t-row-label .h-en{display:block;font-size:9px;color:var(--ink3)}
+  .t-cell{border-top:1px solid var(--rule);border-left:1px solid var(--rule);padding:0}
+  .hex-btn{display:block;width:100%;padding:9px 2px;text-align:center;cursor:pointer;background:transparent;border:none;color:var(--ink);line-height:1.3;transition:background 0.12s}
+  .hex-btn:hover{background:var(--bg3)}
+  .hex-btn .sym{display:block;font-size:22px;margin-bottom:1px;color:var(--ink)}
+  .hex-btn .num{color:var(--ink3);font-size:10px;font-family:var(--serif)}
+
+  /* ── DETAIL ── */
+  .detail{display:none;border:1px solid var(--rule2);border-radius:var(--radius);overflow:hidden;background:var(--bg2)}
+  .detail.active{display:block}
+  .d-header{padding:1.6rem 1.4rem 1.3rem;border-bottom:1px solid var(--rule2);text-align:center;position:relative;background:
+    linear-gradient(180deg,rgba(203,70,50,0.05),transparent)}
+  .d-sym{font-size:52px;line-height:1;margin-bottom:10px;color:var(--ink)}
+  .d-num{font-family:var(--serif);font-style:italic;font-size:12px;color:var(--ink3);letter-spacing:0.04em;margin-bottom:4px}
+  .d-name{font-family:var(--display);font-size:30px;font-weight:600;margin-bottom:5px;color:var(--ink);line-height:1.1}
+  .d-pinyin{font-family:var(--han);font-size:15px;color:var(--ink2);margin-bottom:14px}
+  .d-trigrams{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+  .tri-tag{font-family:var(--serif);font-size:12px;padding:4px 11px;border:1px solid var(--rule2);border-radius:var(--radius);color:var(--ink2);background:var(--bg)}
+
+  .d-section{padding:1.3rem 1.4rem;border-bottom:1px solid var(--rule)}
+  .d-section:last-child{border-bottom:none}
+  .d-label{font-family:var(--serif);font-size:11px;font-weight:500;color:var(--cinnabar);text-transform:uppercase;letter-spacing:0.14em;margin-bottom:11px}
+  .d-text{font-size:15.5px;color:var(--ink);line-height:1.85}
+
+  .line-block{padding:11px 0;border-top:1px solid var(--rule)}
+  .line-block:first-child{border-top:none}
+  .line-n{font-family:var(--serif);font-style:italic;font-size:12px;color:var(--ink3);margin-bottom:4px}
+  .line-t{font-size:14.5px;color:var(--ink);line-height:1.75}
+
+  /* ── ADVANCE TOGGLE ── */
+  .advance-toggle{display:inline-flex;align-items:center;gap:8px;margin-top:14px;padding:6px 15px;background:transparent;
+    border:1px solid var(--rule2);border-radius:20px;color:var(--ink2);font-family:var(--serif);font-style:italic;font-size:13px;cursor:pointer;transition:all 0.15s}
+  .advance-toggle:hover{border-color:var(--cinnabar);color:var(--ink)}
+  .advance-toggle.on{background:var(--cinnabar-soft);border-color:var(--cinnabar);color:var(--ink)}
+  .advance-toggle .dot{width:6px;height:6px;border-radius:50%;background:var(--cinnabar);opacity:0.4}
+  .advance-toggle.on .dot{opacity:1}
+
+  /* ── DRAWN HEXAGRAM LINES ── */
+  .hexlines{display:flex;flex-direction:column;gap:5px;padding:6px 0 12px;max-width:320px}
+  .hexline{display:flex;align-items:center;gap:14px;padding:7px 12px;cursor:pointer;border-radius:var(--radius);border:1px solid transparent;transition:background 0.12s,border-color 0.12s}
+  .hexline:hover{background:var(--bg3)}
+  .hexline.changing{background:var(--cinnabar-soft);border-color:var(--cinnabar)}
+  .hexline .pos{font-family:var(--serif);font-style:italic;font-size:12px;color:var(--ink3);width:46px;flex-shrink:0}
+  .hexline.changing .pos{color:var(--cinnabar);font-style:normal;font-weight:500}
+  .bar{display:flex;gap:8px;width:128px;height:14px;flex-shrink:0}
+  .bar .seg{background:var(--ink);height:100%;border-radius:1px}
+  .bar.yang .seg{flex:1}
+  .bar.yin .seg{flex:1}
+  .hexline.changing .bar .seg{background:var(--cinnabar)}
+  .hexline .mark{font-size:15px;color:var(--cinnabar);width:20px;flex-shrink:0;text-align:center}
+  .lines-hint{font-family:var(--serif);font-style:italic;font-size:12px;color:var(--ink3);margin-bottom:10px}
+
+  /* ── TRANSFORMATION ── */
+  .transform{margin-top:6px;padding:14px 16px;background:var(--bg);border:1px solid var(--cinnabar);border-radius:var(--radius)}
+  .transform-flow{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+  .tf-hex{display:flex;align-items:center;gap:10px}
+  .tf-sym{font-size:30px;color:var(--ink);line-height:1}
+  .tf-meta{display:flex;flex-direction:column}
+  .tf-num{font-family:var(--serif);font-style:italic;font-size:10px;color:var(--ink3)}
+  .tf-name{font-family:var(--display);font-size:17px;font-weight:600;color:var(--ink)}
+  .tf-arrow{font-size:20px;color:var(--cinnabar)}
+  .tf-link{cursor:pointer;background:none;border:none;text-align:left;padding:0}
+  .tf-link:hover .tf-name{color:var(--cinnabar)}
+  .transform-note{font-size:13.5px;color:var(--ink2);line-height:1.7;margin-top:11px}
+  .transform-note strong{color:var(--ink);font-weight:500}
+  .transform-note em{font-style:italic;color:var(--cinnabar)}
+  .clear-changing{margin-top:10px;font-family:var(--serif);font-style:italic;font-size:12px;color:var(--ink3);background:none;border:none;cursor:pointer;padding:0}
+  .clear-changing:hover{color:var(--cinnabar)}
+
+  .line-block.active-line{background:var(--cinnabar-soft);border-radius:var(--radius);padding:11px 12px;margin:2px -8px;border-top:none}
+  .line-block.active-line .line-n{color:var(--cinnabar);font-style:normal;font-weight:500}
+  .line-block.dimmed{opacity:0.4}
+
+  /* ── STRUCTURE (advanced) ── */
+  .struct-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px}
+  .struct-cell{background:var(--bg);border:1px solid var(--rule2);border-radius:var(--radius);padding:13px 10px;cursor:pointer;text-align:center;transition:border-color 0.12s;font-family:var(--serif)}
+  .struct-cell:hover{border-color:var(--cinnabar)}
+  .struct-label{font-family:var(--serif);font-style:italic;font-size:10.5px;color:var(--ink3);margin-bottom:8px;letter-spacing:0.02em}
+  .struct-sym{font-size:34px;color:var(--ink);line-height:1;margin-bottom:7px}
+  .struct-name{font-family:var(--display);font-size:15px;font-weight:600;color:var(--ink)}
+  .struct-num{font-family:var(--serif);font-style:italic;font-size:10px;color:var(--ink3)}
+  .struct-desc{font-size:13px;color:var(--ink2);line-height:1.75;margin-top:13px}
+  .struct-desc strong{color:var(--cinnabar);font-weight:500}
+  .pos-ref{margin-top:4px}
+  .pos-row{display:grid;grid-template-columns:58px 1fr;gap:12px;padding:9px 0;border-top:1px solid var(--rule);font-size:13px}
+  .pos-row:first-child{border-top:none}
+  .pos-n{font-family:var(--serif);color:var(--ink);font-weight:500}
+  .pos-d{color:var(--ink2);line-height:1.6}
+  .pos-row.ruler .pos-n::after{content:" ★";color:var(--cinnabar)}
+  .adv-section{display:none}
+  .adv-section.show{display:block}
+
+  /* ── TRIGRAM LEGEND ── */
+  .legend{margin-top:1.6rem;border:1px solid var(--rule2);border-radius:var(--radius);overflow:hidden;background:var(--bg2)}
+  .legend-title{padding:.8rem 1.1rem;background:var(--bg);font-family:var(--serif);font-style:italic;font-size:13px;color:var(--ink2);border-bottom:1px solid var(--rule2)}
+  .legend-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0}
+  .lg-item{display:flex;align-items:center;gap:8px;padding:12px;text-decoration:none;border-bottom:1px solid var(--rule);border-right:1px solid var(--rule);color:var(--ink);transition:background 0.12s;cursor:pointer;background:transparent;font-family:var(--serif);width:100%;text-align:left}
+  .lg-item:hover{background:var(--bg3)}
+  .lg-item:nth-child(4),.lg-item:nth-child(8){border-right:none}
+  .lg-item:nth-child(5),.lg-item:nth-child(6),.lg-item:nth-child(7),.lg-item:nth-child(8){border-bottom:none}
+  .lg-sym{font-size:20px;color:var(--cinnabar)}
+  .lg-name{font-size:12.5px;font-weight:500;color:var(--ink)}
+
+  @media(prefers-reduced-motion:reduce){*{transition:none!important}}
+  @media(max-width:520px){
+    body{font-size:15px;padding:1rem 0.85rem 3rem}
+    .mast-text h1{font-size:27px}
+    .seal{width:46px;height:46px}.seal span{font-size:25px}
+    .d-name{font-size:25px}.d-sym{font-size:44px}
+    .struct-grid{grid-template-columns:1fr}
+    .bar{width:104px}
+  }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div class="seal"><span>易</span></div>
+  <div class="mast-text">
+    <h1>I Ching<span class="han">六十四卦</span></h1>
+    <p class="subtitle">A reference to the sixty-four hexagrams — tap any cell to open</p>
+  </div>
+</div>
+
+<button class="back-btn" id="backBtn" onclick="showTable()">← back to the sixty-four</button>
+
+<div id="tableView">
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+  <th class="t-corner">↓ lower / upper →</th>
+<th class="t-head"><span class="h-sym">☰</span><span class="h-hz">乾</span><span class="h-py">Qián</span><span class="h-en">Heaven</span></th>
+  <th class="t-head"><span class="h-sym">☱</span><span class="h-hz">兌</span><span class="h-py">Duì</span><span class="h-en">Lake</span></th>
+  <th class="t-head"><span class="h-sym">☲</span><span class="h-hz">離</span><span class="h-py">Lí</span><span class="h-en">Fire</span></th>
+  <th class="t-head"><span class="h-sym">☳</span><span class="h-hz">震</span><span class="h-py">Zhèn</span><span class="h-en">Thndr</span></th>
+  <th class="t-head"><span class="h-sym">☴</span><span class="h-hz">巽</span><span class="h-py">Xùn</span><span class="h-en">Wind</span></th>
+  <th class="t-head"><span class="h-sym">☵</span><span class="h-hz">坎</span><span class="h-py">Kǎn</span><span class="h-en">Water</span></th>
+  <th class="t-head"><span class="h-sym">☶</span><span class="h-hz">艮</span><span class="h-py">Gèn</span><span class="h-en">Mtn</span></th>
+  <th class="t-head"><span class="h-sym">☷</span><span class="h-hz">坤</span><span class="h-py">Kūn</span><span class="h-en">Earth</span></th>
+</tr>
+</thead>
+<tbody id="tableBody">
+<tr id="tri-heaven">
+<td class="t-row-label"><span class="h-sym">☰</span><span class="h-hz">乾</span><span class="h-py">Qián</span><span class="h-en">Heaven</span></td>
+<td class="t-cell"><button class="hex-btn" onclick="show(1)"><span class="sym">䷀</span><span class="num">1</span></button></td>
+<td class="t-cell"><button class="hex-btn" onclick="show(43)"><span class="sym">䷪</span><span class="num">43</span></button></td>
+<td class="t-cell"><button class="hex-btn" onclick="show(14)"><span class="sym">䷍</span><span class="num">14</span></button></td>
+<td class="t-cell"><button class="hex-btn" onclick="show(34)"><span class="sym">䷡</span><span class="num">34</span></button></td>
+<td class="t-cell"><button class="hex-btn" onclick="show(9)"><span class="sym">䷈</span><span class="num">9</span></button></td>
+<td class="t-cell"><button class="hex-btn" onclick="show(5)"><span class="sym">䷄</span><span class="num">5</span></button></td>
+<td class="t-cell"><button class="hex-btn" onclick="show(26)"><span class="sym">䷙</span><span class="num">26</span></button></td>
+<td class="t-cell"><button class="hex-btn" onclick="show(11)"><span class="sym">䷊</span><span class="num">11</span></button></td>
+</tr>
+<tr id="tri-lake">
+<td class="t-row-label"><span class="h-sym">☱</span><span class="h-hz">兌</span><span class="h-py">Duì</span><span class="h-en">Lake</span></td>
+<td class="t-cell"><button class="hex-btn" onclick="show(10)"><span class="sym">䷉</span><span class="num">10</span></button></td>
+<td class="t-cell"><button class="hex-btn" onclick="show(58)"><span class="sym">䷹</span><span class="num">58</span></button></td>
+<td class="t-cell"><button class="hex-btn" onclick="show(38)"><span class="sym">䷥</span><span class="num">38</span></button></td>
+<td class="t-cell"><button class="hex-btn" onclick="show(54)"><span class="sym">䷵</span><span class="num">54</span></button></td>
+<td class="t-cell"><button class="hex-btn" onclick="show(61)"><span class="sym">䷼</span><span class="num">61</span></button></td>
+<td class="t-cell"><button class="hex-btn" onclick="show(60)"><span class="sym">䷻</span><span class="num">60</span></button></td>
+<td class="t-cell"><button class="hex-btn" onclick="show(41)"><span class="sym">䷨</span><span class="num">41</span></button></td>
+<td class="t-cell"><button class="hex-btn" onclick="show(19)"><span class="sym">䷒</span><span class="num">19</span></button></td>
+</tr>
+<tr id="tri-fire">
+<td class="t-row-label"><span class="h-sym">☲</span><span class="h-hz">離</span><span class="h-py">Lí</span><span class="h-en">Fire</span></td>
+<td class="t-cell"><button class="hex-btn" onclick="show(13)"><span class="sym">䷌</span><span class="num">13</span></button></td>
+<td class="t-cell"><button class="hex-btn" onclick="show(49)"><span class="sym">䷰</span><span class="num">49</span></button></td>
+<td class="t-cell"><button class="hex-btn" onclick="show(30)"><span class="sym">䷝</span><span class="num">30</span></button></td>
+<td class="t-cell"><button class="hex-btn" onclick="show(55)"><span class="sym">䷶</span><span class="num">55</span></button></td>
+<td class="t-cell"><button class="hex-btn" onclick="show(37)"><span class="sym">䷤</span><span class="num">37</span></button></td>
+<td class="t-cell"><button class="hex-btn" onclick="show(63)"><span class="sym">䷾</span><span class="num">63</span></button></td>
+<td class="t-cell"><button class="hex-btn" onclick="show(22)"><span class="sym">䷕</span><span class="num">22</span></button></td>
+<td class="t-cell"><button class="hex-btn" onclick="show(36)"><span class="sym">䷣</span><span class="num">36</span></button></td>
+</tr>
+<tr id="tri-thunder">
+<td class="t-row-label"><span class="h-sym">☳</span><span class="h-hz">震</span><span class="h-py">Zhèn</span><span class="h-en">Thunder</span></td>
+<td class="t-cell"><button class="hex-btn" onclick="show(25)"><span class="sym">䷘</span><span class="num">25</span></button></td>
+<td class="t-cell"><button class="hex-btn" onclick="show(17)"><span class="sym">䷐</span><span class="num">17</span></button></td>
+<td class="t-cell"><button class="hex-btn" onclick="show(21)"><span class="sym">䷔</span><span class="num">21</span></button></td>
+<td class="t-cell"><button class="hex-btn" onclick="show(51)"><span class="sym">䷲</span><span class="num">51</span></button></td>
+<td class="t-cell"><button class="hex-btn" onclick="show(42)"><span class="sym">䷩</span><span class="num">42</span></button></td>
+<td class="t-cell"><button class="hex-btn" onclick="show(3)"><span class="sym">䷂</span><span class="num">3</span></button></td>
+<td class="t-cell"><button class="hex-btn" onclick="show(27)"><span class="sym">䷚</span><span class="num">27</span></button></td>
+<td class="t-cell"><button class="hex-btn" onclick="show(24)"><span class="sym">䷗</span><span class="num">24</span></button></td>
+</tr>
+<tr id="tri-wind">
+<td class="t-row-label"><span class="h-sym">☴</span><span class="h-hz">巽</span><span class="h-py">Xùn</span><span class="h-en">Wind</span></td>
+<td class="t-cell"><button class="hex-btn" onclick="show(44)"><span class="sym">䷫</span><span class="num">44</span></button></td>
+<td class="t-cell"><button class="hex-btn" onclick="show(28)"><span class="sym">䷛</span><span class="num">28</span></button></td>
+<td class="t-cell"><button class="hex-btn" onclick="show(50)"><span class="sym">䷱</span><span class="num">50</span></button></td>
+<td class="t-cell"><button class="hex-btn" onclick="show(32)"><span class="sym">䷟</span><span class="num">32</span></button></td>
+<td class="t-cell"><button class="hex-btn" onclick="show(57)"><span class="sym">䷸</span><span class="num">57</span></button></td>
+<td class="t-cell"><button class="hex-btn" onclick="show(48)"><span class="sym">䷯</span><span class="num">48</span></button></td>
+<td class="t-cell"><button class="hex-btn" onclick="show(18)"><span class="sym">䷑</span><span class="num">18</span></button></td>
+<td class="t-cell"><button class="hex-btn" onclick="show(46)"><span class="sym">䷭</span><span class="num">46</span></button></td>
+</tr>
+<tr id="tri-water">
+<td class="t-row-label"><span class="h-sym">☵</span><span class="h-hz">坎</span><span class="h-py">Kǎn</span><span class="h-en">Water</span></td>
+<td class="t-cell"><button class="hex-btn" onclick="show(6)"><span class="sym">䷅</span><span class="num">6</span></button></td>
+<td class="t-cell"><button class="hex-btn" onclick="show(47)"><span class="sym">䷮</span><span class="num">47</span></button></td>
+<td class="t-cell"><button class="hex-btn" onclick="show(64)"><span class="sym">䷿</span><span class="num">64</span></button></td>
+<td class="t-cell"><button class="hex-btn" onclick="show(40)"><span class="sym">䷧</span><span class="num">40</span></button></td>
+<td class="t-cell"><button class="hex-btn" onclick="show(59)"><span class="sym">䷺</span><span class="num">59</span></button></td>
+<td class="t-cell"><button class="hex-btn" onclick="show(29)"><span class="sym">䷜</span><span class="num">29</span></button></td>
+<td class="t-cell"><button class="hex-btn" onclick="show(4)"><span class="sym">䷃</span><span class="num">4</span></button></td>
+<td class="t-cell"><button class="hex-btn" onclick="show(7)"><span class="sym">䷆</span><span class="num">7</span></button></td>
+</tr>
+<tr id="tri-mountain">
+<td class="t-row-label"><span class="h-sym">☶</span><span class="h-hz">艮</span><span class="h-py">Gèn</span><span class="h-en">Mountain</span></td>
+<td class="t-cell"><button class="hex-btn" onclick="show(33)"><span class="sym">䷠</span><span class="num">33</span></button></td>
+<td class="t-cell"><button class="hex-btn" onclick="show(31)"><span class="sym">䷞</span><span class="num">31</span></button></td>
+<td class="t-cell"><button class="hex-btn" onclick="show(56)"><span class="sym">䷷</span><span class="num">56</span></button></td>
+<td class="t-cell"><button class="hex-btn" onclick="show(62)"><span class="sym">䷽</span><span class="num">62</span></button></td>
+<td class="t-cell"><button class="hex-btn" onclick="show(53)"><span class="sym">䷴</span><span class="num">53</span></button></td>
+<td class="t-cell"><button class="hex-btn" onclick="show(39)"><span class="sym">䷦</span><span class="num">39</span></button></td>
+<td class="t-cell"><button class="hex-btn" onclick="show(52)"><span class="sym">䷳</span><span class="num">52</span></button></td>
+<td class="t-cell"><button class="hex-btn" onclick="show(15)"><span class="sym">䷎</span><span class="num">15</span></button></td>
+</tr>
+<tr id="tri-earth">
+<td class="t-row-label"><span class="h-sym">☷</span><span class="h-hz">坤</span><span class="h-py">Kūn</span><span class="h-en">Earth</span></td>
+<td class="t-cell"><button class="hex-btn" onclick="show(12)"><span class="sym">䷋</span><span class="num">12</span></button></td>
+<td class="t-cell"><button class="hex-btn" onclick="show(45)"><span class="sym">䷬</span><span class="num">45</span></button></td>
+<td class="t-cell"><button class="hex-btn" onclick="show(35)"><span class="sym">䷢</span><span class="num">35</span></button></td>
+<td class="t-cell"><button class="hex-btn" onclick="show(16)"><span class="sym">䷏</span><span class="num">16</span></button></td>
+<td class="t-cell"><button class="hex-btn" onclick="show(20)"><span class="sym">䷓</span><span class="num">20</span></button></td>
+<td class="t-cell"><button class="hex-btn" onclick="show(8)"><span class="sym">䷇</span><span class="num">8</span></button></td>
+<td class="t-cell"><button class="hex-btn" onclick="show(23)"><span class="sym">䷖</span><span class="num">23</span></button></td>
+<td class="t-cell"><button class="hex-btn" onclick="show(2)"><span class="sym">䷁</span><span class="num">2</span></button></td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<div class="legend">
+  <div class="legend-title">Trigram reference</div>
+  <div class="legend-grid">
+    <button class="lg-item" onclick="showTri('heaven')"><span class="lg-sym">☰</span><span class="lg-name">[1] Heaven</span></button>
+    <button class="lg-item" onclick="showTri('lake')"><span class="lg-sym">☱</span><span class="lg-name">[2] Lake</span></button>
+    <button class="lg-item" onclick="showTri('fire')"><span class="lg-sym">☲</span><span class="lg-name">[3] Fire</span></button>
+    <button class="lg-item" onclick="showTri('thunder')"><span class="lg-sym">☳</span><span class="lg-name">[4] Thunder</span></button>
+    <button class="lg-item" onclick="showTri('earth')"><span class="lg-sym">☷</span><span class="lg-name">[8] Earth</span></button>
+    <button class="lg-item" onclick="showTri('mountain')"><span class="lg-sym">☶</span><span class="lg-name">[7] Mountain</span></button>
+    <button class="lg-item" onclick="showTri('water')"><span class="lg-sym">☵</span><span class="lg-name">[6] Water</span></button>
+    <button class="lg-item" onclick="showTri('wind')"><span class="lg-sym">☴</span><span class="lg-name">[5] Wind</span></button>
+  </div>
+</div>
+</div>
+
+<div class="detail" id="detailView"></div>
+
+<script>
+const T={
+  1:["Heaven","☰","乾","Qián"],2:["Thunder","☳","震","Zhèn"],3:["Water","☵","坎","Kǎn"],4:["Mountain","☶","艮","Gèn"],
+  5:["Earth","☷","坤","Kūn"],6:["Wind","☴","巽","Xùn"],7:["Fire","☲","離","Lí"],8:["Lake","☱","兌","Duì"]
+};
+const HZ={
+  1:"乾",2:"坤",3:"屯",4:"蒙",5:"需",6:"訟",7:"師",8:"比",
+  9:"小畜",10:"履",11:"泰",12:"否",13:"同人",14:"大有",15:"謙",16:"豫",
+  17:"隨",18:"蠱",19:"臨",20:"觀",21:"噬嗑",22:"賁",23:"剝",24:"復",
+  25:"無妄",26:"大畜",27:"頤",28:"大過",29:"坎",30:"離",31:"咸",32:"恆",
+  33:"遯",34:"大壯",35:"晉",36:"明夷",37:"家人",38:"睽",39:"蹇",40:"解",
+  41:"損",42:"益",43:"夬",44:"姤",45:"萃",46:"升",47:"困",48:"井",
+  49:"革",50:"鼎",51:"震",52:"艮",53:"漸",54:"歸妹",55:"豐",56:"旅",
+  57:"巽",58:"兌",59:"渙",60:"節",61:"中孚",62:"小過",63:"既濟",64:"未濟"
+};
+
+// table: rows=lower trigram 1-8, cols=upper trigram 1-8
+const TABLE=[
+  [1,34,5,26,11,9,14,43],
+  [25,51,3,27,24,42,21,17],
+  [6,40,29,4,7,59,64,47],
+  [33,62,39,52,15,53,56,31],
+  [12,16,8,23,2,20,35,45],
+  [44,32,48,18,46,57,50,28],
+  [13,55,63,22,36,37,30,49],
+  [10,54,60,41,19,61,38,58]
+];
+
+// upper trigram for each hexagram number
+// derived from table: [hex_num] = [lower_tri_idx, upper_tri_idx]
+const TRI={};
+for(let r=0;r<8;r++)for(let c=0;c<8;c++)TRI[TABLE[r][c]]=[r+1,c+1];
+
+// trigram bit patterns (bottom->top, 1=yang) keyed by T-index
+const PAT={1:[1,1,1],2:[1,0,0],3:[0,1,0],4:[0,0,1],5:[0,0,0],6:[0,1,1],7:[1,0,1],8:[1,1,0]};
+const BITS2T={"111":1,"100":2,"010":3,"001":4,"000":5,"011":6,"101":7,"110":8};
+function bitsToT(b){return BITS2T[b.join("")]}
+function hexFromT(lo,up){return TABLE[lo-1][up-1]}
+function hexLines(n){const t=TRI[n];const lo=PAT[t[0]],up=PAT[t[1]];return [lo[0],lo[1],lo[2],up[0],up[1],up[2]]}
+function hexFromLines(L){return hexFromT(bitsToT(L.slice(0,3)),bitsToT(L.slice(3,6)))}
+function changingHex(n,pos){const L=hexLines(n).slice();L[pos-1]=L[pos-1]?0:1;return hexFromLines(L)}
+function nuclearHex(n){const L=hexLines(n);return hexFromLines([L[1],L[2],L[3],L[2],L[3],L[4]])}
+function oppositeHex(n){return hexFromLines(hexLines(n).map(b=>b?0:1))}
+function reversedHex(n){return hexFromLines(hexLines(n).slice().reverse())}
+
+const LINEPOS=[
+"Beginning. The situation is just forming — potential not yet manifest. Act with care before conditions are set.",
+"Inner center. The heart of the lower trigram, often the most favorable and balanced position.",
+"Threshold. The top of the inner trigram — a point of transition and exposure, frequently difficult.",
+"Approach to power. The base of the upper trigram, the minister's place. Close to authority; tact matters.",
+"The ruler. The center of the upper trigram — the place of greatest influence and responsibility.",
+"Excess. The top. The situation has gone as far as it can and must turn; the position beyond the action."
+];
+
+let advanceMode=false;
+let changingLine=null;
+let curHex=null;
+
+function s(n){return chr(0x4DBF+n)}
+function chr(n){return String.fromCodePoint(n)}
+
+const H={
+1:{name:"Heaven",py:"Qián",
+sit:"Pure creative force and maximum energy. The situation calls for bold, clear action from a position of genuine strength. This is a powerful moment — but strength at its peak contains the risk of overreach. Move with awareness, not just with momentum.",
+lines:["Potential is here but conditions are not fully ready. Develop quietly. Do not force visibility yet.","You are emerging. Seek guidance from someone experienced. Recognition begins to form around you.","Active and exposed at the same time. The risk of carelessness is real. Stay sharp and grounded.","A genuine moment of choice — advance or hold. Both are valid. Read the situation carefully before committing.","The right person in the right place at the right time. Natural authority. Act with full confidence.","Gone too far. Strength without restraint becomes its own downfall. Pull back before the fall happens."]},
+
+2:{name:"Earth",py:"Kūn",
+sit:"Pure receptivity. This is not a time to initiate — it is a time to support, yield, and allow things to develop naturally. Your strength here comes from endurance and consistency, not from pushing. Follow the lead of what is already moving rather than trying to direct it.",
+lines:["When you sense frost forming, harder conditions are on their way. Small signals now carry real weight — pay attention.","Straightforward and open. No hidden agenda, no calculation. This directness brings natural success without effort.","You have the ability but the moment calls for restraint. Stay in the background and do good work quietly.","Discretion is essential right now. Keep things contained. Unnecessary visibility creates unnecessary risk.","Quiet, genuine competence. No need for display. Your reliability and steadiness speak for themselves.","Two forces trying to lead at the same time creates conflict. Someone needs to yield. Understand your role clearly."]},
+
+3:{name:"Sprouting",py:"Zhūn",
+sit:"Difficult beginnings. Something new is trying to emerge but conditions are tangled and the path is unclear. This is normal for any genuine start — the difficulty is not a sign something is wrong. Do not abandon the effort, but do not force it either. Seek help and take small steps.",
+lines:["Stuck at the start. Hesitation is natural but do not let it harden into paralysis. Find support and begin anyway.","Everything feels obstructed. Help arrives from an unexpected direction. Do not close yourself off to it.","Pushing into territory you do not know without a guide leads to trouble. Stop and get your bearings first.","You want to move forward but conditions block you. If a genuine offer of help arrives, accept it without pride.","Small progress is possible right now — do not attempt large moves. Build what you can within the current limits.","Tears and loss. The effort has gone too far into unworkable ground. This outcome required an earlier turn."]},
+
+4:{name:"Inexperience",py:"Méng",
+sit:"A situation of learning and immaturity — either in yourself or in those you are dealing with. The dynamic here is teacher and student. If you are the one seeking, ask clearly once and then be quiet. If you are the one guiding, be consistent and do not enable foolishness.",
+lines:["Discipline is necessary to develop the inexperienced. Too much leniency leads to disrespect. Hold a clear standard.","Be patient and inclusive with those who do not yet know. Real teaching comes through tolerance, not frustration.","Do not pursue someone or something that has no real substance just because it appears attractive. Stay grounded.","Isolation and ignorance go together. Open yourself to learning from others. Pride keeps you stuck.","Genuine openness and willingness to learn. This simple attitude is the most valuable thing here.","Correction is sometimes necessary. The purpose is to redirect, not to punish. Keep it proportionate."]},
+
+5:{name:"Waiting",py:"Xū",
+sit:"The time is not right to act. Something you need is not yet in place — conditions, information, readiness. This is not failure or stagnation, it is a necessary pause before genuine forward movement. Wait with inner calm rather than anxious urgency. What you need will arrive.",
+lines:["Waiting at a distance from the difficulty. Stay where you are. Do not move toward the problem prematurely.","Tension begins to rise while you wait. There may be some friction or small conflict. Stay steady and do not escalate.","You have moved too close to the danger while still waiting. Be careful — you have made yourself vulnerable.","You are in a dangerous position. Stillness is your best option right now. Do not fight, do not flee dramatically.","Rest and sustain yourself while you wait. You are in a relatively safe position. Conserve your energy.","Unexpected visitors or developments arrive. What seems strange may actually bring help. Stay open and receive it."]},
+
+6:{name:"Conflict",py:"Sòng",
+sit:"There is genuine disagreement or contention at work. You believe you are right, and you may well be — but pushing this to a full confrontation carries real cost. The wisest move is usually to resolve matters halfway and let go of the need to win completely. Seek a mediator if possible.",
+lines:["Drop the conflict while it is still small. Minor retreat here avoids major damage later. Know when to stop.","You cannot win this particular contest — the other side is too strong. Step back. Withdrawing is not defeat here.","Hold firmly to what you have built through honest work. Do not reach for what belongs to others. Stay with your own.","You cannot win, so you do not pursue it. Return to your own situation and reorient toward what you can actually do.","Taking the conflict to a clear, fair authority brings resolution. This is a legitimate and workable path.","Even if you win completely, the victory is hollow and short-lived. The cost of a full fight was not worth it."]},
+
+7:{name:"Multitude",py:"Shī",
+sit:"Discipline and coordinated effort under difficult conditions. This situation requires organized leadership, not individual action. Authority here comes from structure and consistency, not from force or personality. If you are managing people or resources, maintain clear order from the center.",
+lines:["Set out with proper structure in place. Moving without discipline from the start leads to failure later.","The leader stays close to the situation and the people. Recognition and support follow this kind of presence.","Too many people trying to lead at once. Confusion and loss result. Clarify who holds authority now.","Tactical retreat is the right move. It is not defeat — it preserves your position for the right moment.","Experienced leadership is needed for the core task. Delegate the smaller things. Keep the main effort disciplined.","After success, reward and assign roles carefully. Putting the wrong person in charge now wastes everything built."]},
+
+8:{name:"Union",py:"Bǐ",
+sit:"A time for coming together, forming alliances, and building cohesion. People and circumstances are naturally drawing toward a center. If you are that center, examine whether you are truly ready for the responsibility. If you are choosing to join something, do so wholeheartedly and without delay.",
+lines:["Genuine sincerity in coming together. No hidden agenda. This honest foundation makes the union stable and lasting.","The impulse to connect comes from within, not from calculation. This inner motivation makes the bond real.","You are associating with people who are not right for you. The connection lacks real substance. Be discerning.","Outward alignment with the right person or group. Being loyal and visible in your commitment is appropriate here.","A clear center holds and attracts the right people naturally. Those who do not belong will stay away on their own.","A late arrival. The group has already formed and the moment for joining properly has passed. Difficulty follows."]},
+
+9:{name:"Small Taming",py:"Xiǎo Xù",
+sit:"You have influence but not yet enough to make a major move. Progress is possible only through gentle, consistent pressure — not through force. This is a time for small adjustments, subtle influence, and patient accumulation. Something is being restrained, and the restraint is necessary for now.",
+lines:["You want to move forward but something stops you. Returning to your own ground is the right move. No blame.","You are being pulled back alongside others. This shared constraint is not a failure — it is the nature of the moment.","The wheel comes off the cart. Miscommunication or misalignment between partners creates a standstill. Address it directly.","Sincerity removes fear and danger. Genuine honesty with those around you resolves the tension that has built up.","Mutual trust and shared resources. Generosity toward those close to you strengthens the whole situation.","The rain has come — the restraint has done its work. Do not push further right now. Consolidate what has been gained."]},
+
+10:{name:"Treading",py:"Lǚ",
+sit:"You are in a situation that requires careful conduct. You may be dealing with someone more powerful than you, or navigating a context where one wrong step has real consequences. Move deliberately, stay alert, and maintain your composure. The right behavior here is the key to coming through safely.",
+lines:["Simple, straightforward conduct. No complications, no pretension. Moving forward this way brings no trouble.","Staying on a clear, steady path. No drama, no distraction. This quiet consistency is exactly what is needed.","A one-eyed person thinks they can see clearly, a lame person thinks they can move fast. Overestimating your position here leads to getting badly hurt. Know your actual limits.","Treading carefully in a dangerous situation. Caution and awareness get you through. Stay sharp.","Decisive action is required. You know what needs to be done. Move forward with full commitment.","Review how you have conducted yourself throughout this situation. What was right leads to good fortune. What was wrong needs honest acknowledgment."]},
+
+11:{name:"Peace",py:"Tài",
+sit:"A rare alignment — inner and outer conditions are in harmony. Energy flows freely, cooperation comes naturally, and conditions genuinely favor forward movement. Build during this time, expand your efforts, and strengthen connections. Be aware that good conditions do not last forever — use this period well.",
+lines:["Progress comes through bringing the right people with you as you advance. Shared purpose creates real momentum.","Hold the center while remaining open to all, including those who are difficult. Broad engagement without losing your core.","Even in good times, difficulty arrives in cycles. Stay steady. Do not become attached to the ease of the current moment.","Stay genuinely connected to those below you. Real contact with people at all levels keeps the situation honest.","A union of complementary strengths from genuinely different positions creates something greater than either alone.","The period of peace is closing. Do not fight the shift. Prepare for the change that is already coming."]},
+
+12:{name:"Standstill",py:"Pǐ",
+sit:"Stagnation. The right elements are not communicating — inner and outer are misaligned, and the natural flow of things has stopped. This is not a time to force progress. Retreat from exposure, conserve your resources, and do not take on large commitments. Wait for the cycle to turn.",
+lines:["Pulling back along with those connected to you. Shared withdrawal from a deteriorating situation is wise here.","Flattery and submissive behavior from those around you. The small minded are gaining ground. Hold your integrity.","Those who have promoted themselves without real substance carry shame underneath. The imbalance is visible.","Stagnation begins to break when the right person or force acts from above. An opening is forming.","The standstill is ending for the right person. But be careful — remain alert even as things begin to move again.","The stagnation is overturned. What was stuck begins to move. First with difficulty, then with genuine joy."]},
+
+13:{name:"Fellowship",py:"Tóng Rén",
+sit:"Genuine connection and collaboration with others. The situation calls for coming together around a shared purpose — not out of convenience, but out of real alignment. This is a time for building bonds that can last, for open communication, and for finding common ground even across differences.",
+lines:["Connection begins at the threshold — open and available. But if it stays only within a narrow group, problems arise.","Fellowship limited to a small in-group breeds exclusion and eventually conflict. Broaden your circle genuinely.","Hidden suspicion despite outward friendliness. Someone is holding back, watching, not fully committing. Address this.","Conflict arises but does not turn into full battle. The situation resolves without the worst outcome. Move forward.","Those who truly belong together are separated for a time. After real difficulty, the reunion is genuine and lasting.","Fellowship in the outer regions — a connection that lacks deep roots. It is real but limited in scope."]},
+
+14:{name:"Great Possession",py:"Dà Yǒu",
+sit:"Abundance and great capacity. You hold significant resources, influence, or advantage right now. The key is how you carry this — with humility and without arrogance. Suppressing what is harmful and supporting what is good is what allows this kind of abundance to be sustained.",
+lines:["No contact yet with what is harmful. Awareness of the danger of excess keeps you clean. Stay alert.","Large capacity moving out into the world. Ability to carry and handle significant things. No mistakes.","A prince offers his gains to the ruler. A small person cannot do this — real generosity requires real character.","Stay clear of the trap of showing off your advantages. Know the difference between genuine confidence and display.","Genuine sincerity and dignity together create natural authority. No force needed. People respond on their own.","Heaven itself assists those who act in genuine alignment. Good fortune follows not from luck but from right action."]},
+
+15:{name:"Modesty",py:"Qiān",
+sit:"Modesty and humility are the operating principles here — not as performance, but as genuine orientation. What is full gets emptied, what is empty gets filled — this is the natural principle at work. The person who holds real ability without display has the most enduring influence in this situation.",
+lines:["Modesty of the truly modest. It is possible to cross great difficulties with this orientation. No mistakes.","Modesty that expresses itself naturally. Quietly consistent and reliable. Enduring good fortune.","Capable and modest at the same time. Achievement without claiming. People naturally come to support this person.","Modesty in motion — not passive. Making your presence felt while keeping display minimal.","No boasting of wealth or ability. Using what you have for what is needed, with neighbors and allies, without show.","Modesty that becomes visible and known. Using it to bring order to your own situation, not to impress others."]},
+
+16:{name:"Enthusiasm",py:"Yù",
+sit:"Enthusiasm and momentum are building. Conditions are ripe for getting people moving together behind a shared direction. This is a good time to organize, to inspire, and to act decisively. But enthusiasm can also slide into excess and complacency — stay grounded even as you move forward.",
+lines:["Enthusiasm expressed through boasting. Claiming too much before anything is done invites failure. Stay quiet.","Firm and clear as a rock. You see what is happening before others do. You do not wait too long. No mistakes.","Looking upward for validation and enthusiasm rather than generating it from within. Hesitation brings regret.","The source of the enthusiasm that moves others. Trusting your own direction completely. Allies gather naturally.","Enthusiasm under pressure — not feeling well, yet not collapsing either. Persistent low-grade difficulty. Endure.","Enthusiasm that has become illusion. When you finally see clearly again, there is no real blame in making a change."]},
+
+17:{name:"Following",py:"Suí",
+sit:"The situation calls for genuine responsiveness and flexibility — adapting to what is actually happening rather than what you planned. Real following is not weakness; it is the intelligent reading of conditions and moving with them. Drop what no longer fits and be honestly responsive to what is in front of you.",
+lines:["The standard has shifted. Going out and connecting with people brings value. Old fixed approaches need to go.","Caught between something small nearby and something significant further out. You cannot hold both. Choose.","Attached to what is close and comfortable. Losing sight of something of real worth further away. Reconsider.","Getting results through following, but if it continues, there is danger. Stay genuine. Clarity on the path keeps trouble away.","Genuine alignment with what is excellent and true. Good fortune.","Deeply committed and held fast to what is real. The king offers this to the mountain. A lasting bond."]},
+
+18:{name:"Decay",py:"Gù",
+sit:"Something has been left to deteriorate — through neglect, inherited problems, or accumulated bad habits. The situation requires honest assessment and active correction. This is not comfortable work, but it is necessary. The decay can be reversed if addressed directly and without delay.",
+lines:["Correcting what a father left undone. There will be some difficulty, but the correction ultimately brings good. No real fault.","Correcting what a mother left undone. This requires more care and gentleness than force.","Correcting things may cause some discomfort or friction. A small mistake perhaps, but no serious harm.","Tolerating what has gone wrong — letting the decay continue. Going further this way leads to real trouble.","Correcting what a father left undone through your own merit and clear action. This brings recognition and praise.","Not serving the corrupt situation or system anymore. Your real service is of a higher order entirely."]},
+
+19:{name:"Approach",py:"Lín",
+sit:"A time of growing strength and favorable approach. Conditions are opening up, influence is expanding, and forward movement is genuinely supported. Engage actively, build relationships, and make your presence felt. However, be aware that this expansive phase will not last indefinitely — prepare for its end while using it well.",
+lines:["Approaching together, in connection with others. Firm and consistent forward movement. Good fortune.","Approaching together. Good fortune. There is nothing that does not benefit from this forward movement.","Easy approach without real depth. Comfortable on the surface but hollow underneath. Alert to this, no real mistake.","Full, complete approach — genuine and without reservation. No mistakes.","Wise approach — the approach of a great leader who knows when and how to use able people. Good fortune.","Generous and whole-hearted in approach. Good fortune and no mistakes. This is the way of genuine integrity."]},
+
+20:{name:"Contemplation",py:"Guān",
+sit:"Step back and observe. This is a time for looking clearly at what is actually happening — in yourself, in your situation, in the systems around you. Real influence comes from deep understanding, and deep understanding comes from honest, unhurried observation. Do not act yet. See first.",
+lines:["Looking like a child — shallow and close to the ground. For an ordinary person this may be acceptable, but a leader here makes mistakes.","Looking through a crack — seeing only a narrow slice. This limited view is enough for a quiet inner life but not for guiding others.","Observing your own movement — going and coming. Deciding your direction from honest self-assessment.","Observing the way things work at a high level — the light of a kingdom. This is worth aspiring to for anyone seeking real influence.","Observing your own life and its effect on others. The person of genuine integrity finds no fault here.","Observing others' lives and reflecting on what you see. The person of integrity finds no fault."]},
+
+21:{name:"Biting Through",py:"Shì Kè",
+sit:"There is an obstacle or obstruction that must be forcefully removed before progress is possible. This hexagram often points to legal matters, disputes, or situations where something blocking the center must be dealt with directly. Decisiveness and clear action are required — gentle approaches will not work here.",
+lines:["Feet in stocks — minor punishment that stops further bad behavior early. No serious harm.","Biting through soft meat. The nose disappears. No mistakes — the correction was needed even if it went slightly far.","Biting through old dried meat and hitting something hard and unpleasant. Minor trouble but no serious harm.","Biting through dried bony meat with great effort. Finding something difficult inside. Persistence pays off here. Good fortune.","Biting through dried lean meat. Finding gold. Danger, but staying correct through it brings no lasting harm.","Carrying a heavy wooden cangue — the ears disappear under it. This is the result of ignoring all earlier warnings."]},
+
+22:{name:"Grace",py:"Bì",
+sit:"Form, appearance, and presentation are important here — but they are secondary to real substance. Grace and adornment have a role, but only in small matters. Do not let beautiful surface obscure the need for genuine content and honest action. Use elegance to clarify, not to conceal.",
+lines:["Leaving the carriage and walking on your own feet. This simplicity and self-reliance is right here.","Grace in the beard — following the movement of what is just above it. Going along with what is genuinely admirable.","Graceful and glistening. Constant correctness brings good fortune. Do not let the pleasant surface make you careless.","Grace then simplicity. A white horse comes as if flying. Not a robber — a genuine suitor. Good outcome.","Grace in the hills and gardens — modest and simple. The silk offering is small. Humility brings good fortune in the end.","Simple and plain — no adornment at all. No mistakes. This bare honesty is the highest form of grace."]},
+
+23:{name:"Splitting Apart",py:"Bō",
+sit:"Deterioration is at work. The ground is being eroded from underneath. This is not a time to force action — the conditions do not support it. Lie low, do not attempt to make major moves, and do not give those who are working against you any opening. Endure through this period.",
+lines:["The bed is being undermined from the legs. Those who do this are determined and persistent. Continuing is dangerous.","The bed is undermined at the frame — the erosion has moved higher. Those doing this show no restraint or mercy.","Splitting apart — but this person has cut themselves free from those doing the damage. No serious mistakes.","The bed is split all the way to the skin. The danger has become immediate and direct. This is a serious moment.","A string of fish. Favor comes through the palace ladies. Everything benefits in the end from holding to what is right.","A large fruit still uneaten — the good that remains. A leader finds a vehicle. An ordinary person's house is split."]},
+
+24:{name:"Return",py:"Fù",
+sit:"A turning point. After a period of depletion or withdrawal, energy is returning — slowly but genuinely. Do not rush it. Allow the natural reversal to complete itself. This is a time of genuine renewal at the root level, not just on the surface. The first small movement in the right direction matters enormously.",
+lines:["A small return and a short distance. No real cause for regret. Very good fortune — catching it early.","A quiet and willing return. Good fortune. Following the example of what is genuinely good around you.","Returning repeatedly — there is some danger in this pattern. But staying with what is correct means no serious mistake.","Walking in the middle of others going the wrong way, but returning alone to the right path. No mistakes.","Noble return. No regret. This is the self-examination of the genuinely sincere person.","A confused and lost return. Disaster. Moving armies or making large decisions now leads to serious defeat."]},
+
+25:{name:"Innocence",py:"Wú Wàng",
+sit:"Act without calculation, without ulterior motive, without attachment to a specific outcome. What is done with genuine innocence and natural correctness succeeds. What is done with hidden agenda or forced intention — even if it looks right on the surface — does not. The purity of the action matters as much as the action itself.",
+lines:["Innocent forward movement. Good fortune.","Not calculating the harvest while plowing. Not planning the use of the land while clearing it. Acting for the act alone.","Undeserved misfortune. Someone tied a cow here and a passer-by takes it — your loss, their gain. Bad luck, not fault.","Staying correct is possible here. No mistakes. Genuine innocence, not performance.","Unexpected illness — do not take medicine. It will pass on its own. Interference makes it worse.","Innocent action but the timing is completely wrong. No useful movement is possible now. Do nothing."]},
+
+26:{name:"Great Taming",py:"Dà Xù",
+sit:"Great accumulation is underway — of strength, resources, knowledge, or virtue. What has been built up must now be held and refined rather than spent. This is the time to study what has come before, learn from great examples, and continue building capacity. The power being gathered will be needed.",
+lines:["Danger is present. Stopping now is the right call. Do not push through the blockage.","The axle straps of a wagon are removed — it cannot move. Let the restraint do its work without fighting it.","A good horse following others on a clear path. Awareness of danger. Practicing every day pays off.","A young bull's horns are given a wooden board. Great good fortune. What could become dangerous is contained early.","A gelded boar's tusks. Good fortune. The dangerous force has been properly managed at its source.","The way of heaven opens up. Success."]},
+
+27:{name:"Nourishment",py:"Yí",
+sit:"Pay attention to what you are taking in and what you are putting out — physically, mentally, and in terms of your words and relationships. True nourishment comes from what genuinely sustains and develops. Examine your sources and your habits. What you feed yourself with, and what you feed others, shapes everything.",
+lines:["You abandon your own nourishment and look at others with envy. Moving this way leads to bad fortune.","Seeking nourishment from the top when you should be finding it from below and within. Going against the natural order brings bad fortune.","Turning away from proper nourishment entirely. Continuing this way for ten years brings nothing good.","Seeking nourishment from a higher source — reaching up for what can genuinely feed you. Good fortune. No mistakes.","Deviating from the normal path of nourishment. Staying correct in one's purpose still brings good fortune. Avoid crossing into large new territory yet.","The source of nourishment. Awareness of danger, but good fortune. It is beneficial to cross great waters now."]},
+
+28:{name:"Great Excess",py:"Dà Guò",
+sit:"The situation has reached a critical point — the load is too heavy, the beam is bending, something must give. Extraordinary action may be required, and it must happen now. At the same time, the person who acts must remain grounded and connected to real values. Boldness without rootedness makes the situation worse.",
+lines:["Using white thatch reeds as padding underneath — excessive care, but no mistake. Careful preparation prevents damage.","A dry poplar tree grows shoots from its roots. An older man takes a young wife. Everything benefits. No mistakes.","The ridgepole sags — the structure is compromised. Bad fortune results from ignoring this.","The ridgepole is braced and supported. Good fortune. But looking for additional support from doubtful sources brings shame.","A dry poplar tree puts out flowers. An older woman takes a young husband. No blame but also no lasting praise.","Going beyond what is safe, water rises above the head. Bad fortune, but no personal fault in the impulse itself."]},
+
+29:{name:"Water",py:"Kǎn",
+sit:"Danger repeated upon danger. You are moving through real difficulty, possibly with more to come. Water does not fight the obstacle — it finds the path through by staying true to its nature. Inner steadiness is everything here. Do not panic, do not stop, do not try to force your way out. Move carefully and keep going.",
+lines:["Entering danger without learning from it. Repeating the same mistakes deepens the trap. Stop and understand before going further.","Danger all around but manageable. Do not attempt to resolve everything at once. Small gains and stabilization first.","Danger from all directions. Moving forward or back makes it worse. Stop and wait. Patience is the only real option.","Simple and honest action — no grand gestures. A cup of rice, a vessel of water, plain earthenware. This is enough.","The water has not yet reached the point of overflow. Stabilize where you are. Getting level is enough for now.","Bound with ropes, trapped in a thicket of thorns. Three years of no release. This is what repeated ignoring of warning leads to."]},
+
+30:{name:"Fire",py:"Lí",
+sit:"Fire gives light but must have something to cling to — it cannot sustain itself in isolation. This situation requires you to attach yourself to what is genuinely correct and enduring. Clarity of perception is available here, but so is the risk of burning out or clinging to something that cannot hold you. Choose what you attach to with care.",
+lines:["Footsteps going in confused directions at the start of the day. Be serious about finding the right orientation. No mistakes.","Yellow fire — the middle way. Great good fortune. Balanced and steady.","In the light of the setting sun, people either beat on pots and sing, or they lament the coming dark. Bad fortune.","Coming on suddenly, burning up, dying, being cast away. Not a good pattern of movement.","Tears flow, sighing and lamenting. Good fortune. Genuine grief and honest emotion are not weakness here.","The king uses this to march out and correct what is wrong. It is good to punish those who lead others astray, not those who were misled."]},
+
+31:{name:"Influence",py:"Xián",
+sit:"Mutual attraction and genuine influence — one thing acting on another through natural resonance, not force. This hexagram often relates to relationships and the way real connection works. Receptivity and openness make influence possible. Calculation and force destroy it. Be genuinely open and responsive.",
+lines:["Influence at the big toe — the very beginning of movement. A faint impulse. Nothing significant yet.","Influence in the calves — the impulse to move becomes stronger. Staying still is better right now. Going forward brings bad fortune.","Influence in the thighs — following without thinking, rushing toward what attracts. This is embarrassing.","Correctness brings good fortune. Regret disappears. Restless movement in all directions — only those already in your mind will follow.","Influence in the back — no regret. Real influence does not reach people. Something is off in the connection.","Influence through the jaws, cheeks, and tongue — influence through words and talk alone. Shallow."]},
+
+32:{name:"Duration",py:"Héng",
+sit:"Endurance and constancy are the governing principles here. What lasts is what remains true to its own nature consistently over time. This is not a time for novelty or dramatic change but for steady, faithful continuation of what is correct. The person who endures without being rigid succeeds where others fall away.",
+lines:["Trying to make things permanent too quickly, before they are ready. Even good persistence applied too early brings bad fortune.","Regret disappears. This is constancy in the middle — not extreme, not rigid. Sustainable.","Not holding to your own character — taking direction from whatever mood or influence is current. Lasting shame.","No game in the field. Trying to hunt where there is nothing — continuing in the wrong place out of habit.","Holding to what is correct in character. Good fortune for a woman, bad fortune for a man to be this rigidly unchanging in action.","Constantly in agitated movement. No good fortune."]},
+
+33:{name:"Retreat",py:"Dùn",
+sit:"Strategic withdrawal. The time calls for pulling back rather than engaging. This is not defeat — it is the intelligent reading of a situation where advancing would only create more resistance and loss. Retreat while conditions are still manageable, maintain your dignity and character in doing so, and preserve your strength for later.",
+lines:["Retreating at the tail end — dangerous because it is already late. Do not make things worse by acting from here.","Held fast when trying to retreat — like a yellow ox's hide. Nothing can break free here by force.","Clinging attachment while retreating is exhausting and dangerous. Keeping servants and concubines nearby still brings good fortune.","Willing retreat, at the right time. Good fortune for the person of quality. Not so for those of lesser character.","Admirable retreat. Correctness brings good fortune.","Rich and full retreat. Nothing that does not benefit. This is the best outcome — fully free and clear."]},
+
+34:{name:"Great Power",py:"Dà Zhuàng",
+sit:"Great power is present and forward movement seems easy. The risk here is overconfidence — using strength without discernment, pushing past where you should stop, not seeing when the right move is to pause. Real greatness combines power with correct judgment. Strength alone, unchecked, leads to entanglement.",
+lines:["Power in the toes — the very start of movement. Moving forward now leads into trouble. This is certain.","Correctness brings good fortune. The power is in the middle — balanced and grounded.","An inferior person uses power recklessly. A person of quality does not. The ram butts the hedge and his horns get tangled.","Correctness brings good fortune. Regret disappears. The hedge opens, no tangling. The power is in the wheel hub of a large vehicle.","Losing the goat easily — no regret. But do not take it as a sign to push further.","The ram butts the hedge and cannot retreat or advance. Nothing benefits. But persisting through difficulty will eventually bring good fortune."]},
+
+35:{name:"Progress",py:"Jìn",
+sit:"Clear, steady advance. Conditions support forward movement and things are progressing naturally. This is a time to make your abilities and intentions visible, to step forward with clarity, and to build on momentum. Recognition comes. Move in alignment with what is genuinely good and progress continues.",
+lines:["Progress blocked or uncertain at the start. Stay correct. There may be lack of recognition now, but no serious fault.","Progress with a sad face. Correctness brings good fortune. Great happiness comes from this person's grandmother.","Everyone agrees and is aligned. Regret disappears. Moving together brings good fortune.","Progress like a squirrel — scattered and opportunistic. Correctness brings danger. The approach is not honest enough.","Let go of concern about gain or loss. Moving forward and back is fine here. Good fortune — everything benefits.","Using your power to correct only what is in your own domain. Awareness of danger brings good fortune. No mistakes. Continuing to engage with what is not yours brings shame."]},
+
+36:{name:"Darkening of the Light",py:"Míng Yí",
+sit:"The light is being obscured — you may be in a hostile environment, working under harmful authority, or facing a time when your abilities and values cannot be openly expressed. The correct approach is to protect your inner light while adapting your outer expression. Endure. This period will not last forever.",
+lines:["The light bird flies but droops its wings. The person of quality goes three days without eating. They endure. People talk, but the result is good.","The light is wounded in the left thigh. Using the strength of a horse to rescue oneself. Good fortune.","Hunting in the south, capturing the great chief. Do not be too hasty to set things right.","Entering into the left side of the belly — getting to the heart of the darkness. Leaving through the gate and courtyard.","Viscount Ji's darkening of the light. Persistence brings benefit.","No light — only darkness. First climbing up to heaven, then plunging into the earth."]},
+
+37:{name:"Family",py:"Jiā Rén",
+sit:"The dynamics of family — the roles, responsibilities, and relationships within a close group or household. This hexagram is about right relationship within structured roles. When each person holds their place with sincerity and care, the whole functions well. Breaking down of roles from within is what damages this situation.",
+lines:["Clear boundaries within the household from the beginning. Regret disappears. Good fortune.","No going after things she has no business pursuing. Staying within and nourishing the center. Correctness brings good fortune.","When family members are treated with too much severity, there is regret and danger. But when women and children are indulged excessively, that brings shame.","A rich household. Great good fortune.","The king comes to his household. Do not worry. Good fortune.","Sincerity and genuine presence — in the end this brings good fortune."]},
+
+38:{name:"Opposition",py:"Kuí",
+sit:"Divergence and opposition — things that are fundamentally different pulling in different directions. In large matters this divergence creates real problems. In small matters, it can be worked with. The key is to find points of genuine connection without forcing false unity. Understand the nature of the difference before trying to bridge it.",
+lines:["Regret disappears. The lost horse comes back on its own — do not chase it. Seeing bad people, no mistakes in being careful.","Meeting the lord in a narrow lane — no mistakes in this chance encounter even if unplanned.","The wagon is dragged back, the ox is halted, the man's hair and nose cut. No good beginning, but a good end.","Isolated in opposition. Meeting a like-minded person. Genuine connection despite the difficulty. Engaging even through danger brings no mistakes.","Regret disappears. The partner bites through the wrapping. Going forward — what mistakes could there be?","Isolated, seeing a pig covered in mud, a wagon load of devils. Drawing the bow first, then putting it aside. Not a robber but a suitor. Going forward brings good fortune."]},
+
+39:{name:"Obstruction",py:"Jiǎn",
+sit:"Obstruction and difficulty blocking forward progress. Some directions are genuinely blocked — it is better to not attempt them right now. Look inward, strengthen yourself, and consider carefully which path actually leads somewhere. Sometimes turning back or going sideways is the right move when the direct path is genuinely closed.",
+lines:["Going forward leads to obstruction. Coming back brings praise.","The king's servant faces obstruction upon obstruction but not through any fault of his own. He continues anyway.","Going forward leads to obstruction. Coming back is right.","Going forward leads to obstruction. Coming back brings connection with others.","Great obstruction. Friends come to help.","Going forward leads to obstruction. Coming back brings great fortune. It is beneficial to see the great person."]},
+
+40:{name:"Deliverance",py:"Xiè",
+sit:"Release from difficulty and tension. The obstruction is lifting, the pressure is easing. Move quickly now while the opening is present — do not linger in what is past. Pardon what can be pardoned, resolve what needs resolving, and move forward cleanly. What has been building up can now be released.",
+lines:["No mistakes. The release has happened. Move forward cleanly.","Catching three foxes in the field and getting a yellow arrow. Correctness brings good fortune.","Carrying something on your back while also riding in a carriage — this invites robbers. Correctness brings shame. Not the right positioning.","Release your big toe. When a companion comes, there is genuine trust.","The person of quality releases themselves from difficulties. Good fortune. Confidence comes from this to those below.","The prince shoots a hawk on the high wall and kills it. Everything benefits."]},
+
+41:{name:"Decrease",py:"Sǔn",
+sit:"A time of reduction — resources, energy, or circumstances are contracting. This is not inherently bad; genuine decrease in the right spirit leads to increase later. The question is not whether to reduce but how to do it with sincerity and correctness. Even small offerings given genuinely are enough here.",
+lines:["Finishing your own work and going quickly to help. No mistakes. But consider how much to decrease.","Correctness and persistence bring good fortune. It harms you to move forward. Do not decrease — increase.","When three walk together, one is lost. When one walks alone, one finds a companion.","Decreasing one's own faults — making others come quickly with joy. No mistakes.","Someone increases this from the outside. Ten pairs of tortoises cannot oppose it. Great good fortune.","Not decreasing others but increasing them. No mistakes. Correctness brings good fortune. It benefits to cross great waters. One gains servants, no longer a household on its own."]},
+
+42:{name:"Increase",py:"Yì",
+sit:"A time of genuine increase and expansion. Conditions support growth, movement, and bold action. What you put in now yields more than usual in return. This is also a time when helping others costs you little and benefits them greatly. Act generously, move decisively, and make use of this favorable window.",
+lines:["It is beneficial to do great works. Great good fortune. No mistakes.","Someone increases this from the outside. Ten pairs of tortoises cannot oppose it. Constant correctness brings good fortune. The king presents offerings to God. Good fortune.","Increase through unfortunate events — no mistakes if you are sincere and walk the middle path. Report to the prince using a jade tablet.","Walking the middle path, report to the prince. He will follow. It is beneficial to be used in moving the capital.","Sincerity of heart in goodness. No need to ask — great good fortune. Sincerity is recognized as your natural virtue.","No one increases this. Someone may even strike. The heart is not consistently there. Bad fortune."]},
+
+43:{name:"Breakthrough",py:"Guài",
+sit:"A decisive breakthrough is at hand — something must be brought fully into the open and resolved. There is still real danger in the process. Do not use force directly or make threats from a position of conflict. Announce the situation clearly in the right place, be honest about the risk, and do not act as if victory is already secured.",
+lines:["Power in the forward foot — going forward without being able to master the situation invites trouble.","Alertness and readiness at all times — even in the middle of the night. No mistakes even if weapons come in conflict.","Power in the cheekbones — bad fortune. The person of quality is firm and resolute, walks alone in the rain and gets wet. There is anger, but no mistakes.","No skin on the thighs, moving with difficulty. Leading a sheep — regret disappears. Hearing the words but not believing.","The amaranth in the middle of the field. Resolute in the middle path. No mistakes.","No cry of warning. In the end, bad fortune."]},
+
+44:{name:"Coming to Meet",py:"Gòu",
+sit:"An unexpected encounter or the arrival of something previously absent. There is often a quality of the tempting or the infiltrating here — something that appears small and manageable but whose influence spreads. Do not grasp at or pursue this. Be alert to what is entering your life and what its real nature is.",
+lines:["Checked by a brake of metal. Correctness brings good fortune. Moving forward brings bad fortune. Even a lean pig can struggle and jump.","A fish in the wrapping. No mistakes. Not beneficial for guests.","No skin on the thighs, moving with difficulty. Danger but no great mistake.","No fish in the wrapping. This leads to misfortune arising.","Wrapping the melon in a willow leaf. Containing excellence. Something falls from heaven.","Coming to meet with one's horns. Shame, but no mistakes."]},
+
+45:{name:"Gathering",py:"Cuì",
+sit:"A time of gathering and consolidation — people, resources, and energies are coming together. This clustering has power if it forms around something real and correct. Make offerings, prepare for what might go wrong even in good times, and ensure that what is gathering is gathering around genuine purpose rather than mere convenience.",
+lines:["Sincerity but not to completion — there is confusion and disorder. Then a cry, then laughter again. No mistakes. Go forward.","Being drawn into gathering. Good fortune. No mistakes. Sincerity in even a small offering brings benefit.","Gathering under difficulty — sighing and lamenting. Nothing that benefits. Going forward brings no mistakes but small shame.","Great good fortune. No mistakes.","Gathering around the right person. No mistakes. But if some do not believe, great persistent correctness is needed. Regret disappears.","Sighing and lamenting, tears running down. No mistakes."]},
+
+46:{name:"Pushing Upward",py:"Shēng",
+sit:"Gradual, steady upward movement. Like a tree growing from the earth, the advance here is organic, consistent, and builds on real roots. This is a good time to seek out those of quality, to make efforts, and to keep moving even without complete certainty of outcome. The direction is genuinely upward.",
+lines:["Pushing upward with sincerity. Great good fortune.","Sincerity brings benefit even in a small spring offering. No mistakes.","Pushing upward into an empty city — no resistance, free movement.","The king makes offerings on Mount Qi. Good fortune. No mistakes.","Correctness brings good fortune. Pushing upward step by step.","Pushing upward in darkness. Unceasing correctness brings benefit."]},
+
+47:{name:"Exhaustion",py:"Kùn",
+sit:"Genuine exhaustion and oppression — resources are depleted, conditions are difficult, and words do not reach others. This is a testing time. The person of real character maintains their values even here. Do not lose yourself in the difficulty. What you hold inside during this period is what determines what emerges from it.",
+lines:["Sitting exhausted under a bare tree, entering a dark valley. Three years with nothing seen.","Exhausted with wine and food — the crimson sash arrives. It is beneficial to make offering. Moving forward brings bad fortune. No mistakes.","Exhausted before stone — leaning on thorns. Entering one's house and not seeing one's wife. Bad fortune.","Coming slowly, exhausted in a metal carriage. Shame, but there is an end.","Nose and feet cut off. Exhausted by the people in crimson sashes. Joy comes slowly. It is beneficial to make offering.","Exhausted by creeping plants, moving unsteadily. There is regret about movement. Regret over the movement brings good fortune — moving forward from this brings good fortune."]},
+
+48:{name:"The Well",py:"Jǐng",
+sit:"The well is a constant, reliable source that serves all who come to it regardless of who they are. This hexagram points to the importance of maintaining what is fundamental and life-giving — in yourself, in your organization, in your relationships. The water is there; the question is whether it can actually be reached.",
+lines:["A muddy well that no one drinks from. An old well that no animals come to.","Shooting fish at the bottom of the well. The jug is cracked and leaks.","The well has been cleared but no one drinks from it — a loss for all of us. If the king were clear-minded, all would receive the blessing.","The well is being lined with tiles. No mistakes.","The well is clear, cold water to drink. Good fortune.","The well is open and not covered. Sincerity. Great good fortune."]},
+
+49:{name:"Revolution",py:"Gé",
+sit:"Fundamental change and transformation. The old skin is shed; what was there before is replaced. This kind of change is only believed after it has happened — do not expect to be trusted in advance. The timing and sincerity of the change matters enormously. Premature revolution fails. Genuine transformation succeeds.",
+lines:["Bound with the hide of a yellow ox. Cannot yet move.","When the day has come, then the revolution. Moving forward brings good fortune. No mistakes.","Moving forward brings bad fortune. Correctness and danger. When the talk of revolution has come three times, be sincere and they will believe.","Regret disappears. Trust is established. Changing the government brings good fortune.","The great person changes like a tiger. Before the oracle is consulted, there is already belief.","The person of quality changes like a leopard. Ordinary people just change their faces. Moving forward brings bad fortune. Staying correct brings good fortune."]},
+
+50:{name:"The Cauldron",py:"Dǐng",
+sit:"The cauldron is the vessel that transforms raw material into nourishment for what is highest — it represents culture, civilization, and the refining of raw capacity into genuine value. This hexagram points to the importance of the right vessel, the right contents, and serving the right purpose. Something of real worth is being prepared.",
+lines:["A cauldron with its feet turned up. It is beneficial to empty out what is stagnant. Taking a concubine for the sake of children. No mistakes.","There is food in the cauldron. My companions are ill. They cannot come to me. Good fortune.","The cauldron's handles are altered — its movement is blocked. The fat meat of pheasant is not eaten. Once the rain comes regret disappears and good fortune arrives in the end.","The cauldron's legs are broken — the prince's meal is spilled and his person soiled. Bad fortune.","The cauldron has yellow handles and golden carrying rings. Correctness and persistence bring benefit.","The cauldron has jade carrying rings. Great good fortune. Nothing that does not benefit."]},
+
+51:{name:"Thunder",py:"Zhèn",
+sit:"Shock and sudden movement — like thunder that startles everything into alertness. The shock may be frightening in the moment, but the person who remains grounded while others panic demonstrates real character. After the shock passes, clarity returns. Use the jolt as a wake-up call rather than a reason for fear.",
+lines:["Thunder comes — there is shock and fear. Then laughter and talk. Good fortune.","Thunder comes — danger. You lose your valuables and climb nine hills. Do not chase them — in seven days you will have them back.","Thunder comes — confusion and shock. But if the shock spurs movement without fault, no mistakes.","Thunder gets stuck in the mud — no forward movement possible.","Thunder comes and goes, and comes again — a real danger. But nothing is lost. There are still things to be done.","Thunder brings trembling and looking around fearfully — moving forward brings bad fortune. The thunder has not reached you but has reached your neighbor. No mistakes, but there will be talk."]},
+
+52:{name:"Mountain",py:"Gèn",
+sit:"Stillness. Stopping at the right time, in the right place. The back is stilled — there is no more agitation. This hexagram is about the wisdom of knowing when to stop moving and simply be still. It is not passive collapse but active, deliberate stillness. Going too far when you should stop creates problems. Stopping here is correct.",
+lines:["Stilling the toes. No mistakes. Persistent correctness brings benefit.","Stilling the calves — cannot save what they were following. The heart is not at ease.","Stilling the hips — making the spine rigid. Danger. The heart stifles and burns.","Stilling the trunk. No mistakes.","Stilling the jaws. The words are in order. Regret disappears.","Noble stillness. Good fortune."]},
+
+53:{name:"Gradual Progress",py:"Jiàn",
+sit:"Gradual, step-by-step development. Like a wild goose that rests on its proper perches in the right sequence as it migrates, real progress here comes through correct timing and sequence — not through leaps. Each stage must be completed before the next begins. Patience and steadiness are rewarded; rushing is not.",
+lines:["The wild goose gradually approaches the shore. The young son is in danger — there is criticism. No mistakes.","The wild goose gradually approaches the cliff. Eating and drinking in peace and harmony. Good fortune.","The wild goose gradually approaches the dry land. A husband goes on campaign and does not return. A wife is pregnant but does not give birth. Bad fortune. It benefits to resist the invader.","The wild goose gradually approaches the tree. Perhaps it finds a flat branch. No mistakes.","The wild goose gradually approaches the hilltop. The wife is not pregnant for three years. In the end nothing can prevent it. Good fortune.","The wild goose gradually approaches the high plateau. Its feathers can be used for ceremony. Good fortune."]},
+
+54:{name:"Marrying Maiden",py:"Guī Mèi",
+sit:"A subordinate relationship or an arrangement that is not on fully equal terms. There is something incomplete or secondary about the position. Acting from this position requires care and correct conduct — pushing beyond what the role allows leads to bad outcomes. Work well within the actual situation rather than against it.",
+lines:["Marrying maiden as a concubine. The lame can still walk. Moving forward brings good fortune.","The one-eyed can still see. The correctness of a person in a secluded place brings benefit.","The marrying maiden as a slave — she returns as a concubine.","The marrying maiden delays the date. A late marriage has its time.","Emperor Yi gave his daughter in marriage. The imperial garments of the princess were not as fine as those of the concubine. The moon is nearly full. Good fortune.","The woman holds a basket but it has no fruit. The man stabs the sheep but no blood flows. Nothing that benefits."]},
+
+55:{name:"Abundance",py:"Fēng",
+sit:"A time of abundance and fullness — greatness at its peak. Do not be sad that it will not last. While it is here, act boldly and decisively. The sun at noon begins to move toward evening; even great abundance carries the seed of its turning. Use this peak moment fully before the turn comes.",
+lines:["Meeting the master who matches you. Even if they are equal, no mistakes. Going forward brings recognition.","Abundance with a screen before it — at midday stars can be seen. Moving forward brings suspicion and hostility. Sincerity brings good fortune.","Abundance with the floods before it — at midday small stars can be seen. Breaking the right arm. No mistakes.","Abundance with a screen before it — at midday stars can be seen. Meeting the hidden master. Good fortune.","Lines of beauty arrive. Praise and good fortune come. Good fortune.","The house is in abundance, the household is screened. Peering through the gate — silence, no one there. Three years and nothing seen. Bad fortune."]},
+
+56:{name:"Wanderer",py:"Lǚ",
+sit:"The situation of being a stranger, a traveler, or someone without a fixed base. Resources are limited, support is uncertain, and permanence is not available right now. Small things done correctly will still bring some success. Keep a low profile, do not get into conflicts, and do not make large demands on hospitality.",
+lines:["The wanderer occupies himself with trivial things — this brings disgrace.","The wanderer arrives at an inn. He has his valuables and gains a young servant. Correctness.","The wanderer's inn burns down. He loses his young servant. Correctness and danger.","The wanderer is in a shelter. He has his valuables and an axe. My heart is not at ease.","Shooting a pheasant — one arrow is lost. In the end, praise and a position.","The bird burns its nest. The wanderer first laughs and then weeps and wails. Losing cattle in ease. Bad fortune."]},
+
+57:{name:"Wind",py:"Xùn",
+sit:"Gentle, persistent penetration. Like wind that finds every gap, the right approach here is to keep moving in the same direction consistently rather than forcing. Small repeated actions accumulate into real influence. Know your direction, hold it steadily, and see people of quality who can help you move that direction forward.",
+lines:["Advancing and retreating — the correctness of a soldier brings benefit.","Wind under the bed — using diviners and shamans in great numbers. Good fortune. No mistakes.","Repeated wind — shame.","Regret disappears. In the field, three kinds of game are caught.","Correctness brings good fortune. Regret disappears. Nothing that does not benefit. No good beginning but a good end. Three days before the change, three days after. Good fortune.","Wind under the bed — losing the valuables and axe. Correctness brings bad fortune."]},
+
+58:{name:"Lake",py:"Duì",
+sit:"Joy and genuine openness — this is the hexagram of mutual exchange, pleasure, and the power of real connection between people. True joy comes from inner integrity and outward expression in harmony. It is not shallow entertainment or flattery. When people of genuine quality delight in each other and in learning, this is the best kind of joy.",
+lines:["Harmonious joy. Good fortune.","Sincere joy. Good fortune. Regret disappears.","Coming joy — bad fortune.","Negotiated joy — no peace yet. Between afflictions there is joy.","Trusting in what is being stripped away — danger.","Seductive joy."]},
+
+59:{name:"Dispersion",py:"Huàn",
+sit:"Dissolution of what has hardened or become rigid — breaking up blockages, selfishness, or separateness that has built up over time. Like wind over water dispersing the surface, this hexagram calls for something that can open up and reconnect what has become isolated. A large, meaningful effort is supported here.",
+lines:["Using the strength of a horse for rescue. Good fortune.","In dispersion, rushing to one's support. Regret disappears.","Dispersion of one's own body. No regret.","Dispersion of the group — great good fortune. Dispersion leads to a hill. What an ordinary person would not think of.","Dispersion: his great cry, dispersal of the king's granaries. No mistakes.","Dispersion of the blood — going far away and keeping out of harm. No mistakes."]},
+
+60:{name:"Limitation",py:"Jié",
+sit:"Limits and boundaries are being set. Not all limitations are bad — they give structure, prevent excess, and make real action possible. The question is the spirit in which limits are applied: limits that are harsh and self-denying for their own sake are not sustainable. Limits chosen with wisdom and willingness work.",
+lines:["Not going out of the gate and courtyard. No mistakes.","Not going out of the gate and the inner courtyard. Bad fortune.","No limitations on oneself — then there will be wailing. No mistakes.","Contented limitation. Success.","Sweet limitation. Good fortune. Going forward brings honor.","Bitter limitation. Correctness and persistence bring bad fortune. Regret disappears."]},
+
+61:{name:"Inner Truth",py:"Zhōng Fú",
+sit:"Inner truth and sincerity that reaches outward — genuine confidence that comes from real alignment between what you know, what you feel, and what you do. When this sincerity is authentic, it penetrates even those who are normally closed or difficult. It is possible to cross great challenges from this position.",
+lines:["Preparation brings good fortune. There is something else — no peace.","A crane calls in the shade. Its young answers. I have a good cup — I will share it with you.","Meeting a foe. Now drumming, now stopping. Now weeping, now singing.","The moon is nearly full. The horse team goes astray. No mistakes.","Sincerity that binds. No mistakes.","Cock-crow reaches to heaven. Correctness brings bad fortune."]},
+
+62:{name:"Small Exceeding",py:"Xiǎo Guò",
+sit:"A time where small things succeed and large things do not. Going beyond what is appropriate in either direction creates problems. Act with modesty, stay close to what is genuinely needed, and avoid grand gestures. The person who understands this moment does less than might seem possible — and that restraint is exactly right.",
+lines:["The bird in flight — bad fortune.","Passing the grandfather and meeting the grandmother. Not reaching the prince but meeting the official. No mistakes.","Not guarding against what is passing — someone may strike from behind. Bad fortune.","No mistakes. Not passing by but meeting instead. Going forward brings danger — one must be alert. Do not use permanent force. Do not go on forever.","Dense clouds with no rain from our western borders. The prince shoots and takes the one in the cave.","Not meeting but passing by. The flying bird leaves it behind. Bad fortune. This is called calamity and error."]},
+
+63:{name:"After Completion",py:"Jì Jì",
+sit:"Things are in order — a task has been completed, things are in their proper place. But this apparent completion contains the seeds of disorder. When everything is done, the tendency is to relax vigilance, and small things begin to slip. This is the moment requiring the most careful attention precisely because it feels resolved.",
+lines:["He brakes his wheel. He wets his tail. No mistakes.","The wife loses her carriage screen. Do not run after it — in seven days it will be recovered.","The high ancestor attacks the Devil's Country. Three years and he conquers it. An inferior person cannot be used.","Finest clothes to rags. Be on guard all day long.","The neighbor in the east who slaughters an ox does not receive as much real blessing as the neighbor in the west with a small offering made in the right spirit.","Getting one's head in the water. Danger."]},
+
+64:{name:"Before Completion",py:"Wèi Jì",
+sit:"Things are not yet complete — the situation is in flux, the crossing has not been finished. There is real potential here but also real risk. Premature confidence and carelessness at this stage lose everything. Move carefully, judge timing accurately, and do not celebrate before the work is actually done.",
+lines:["He gets his tail in the water. Shame.","He brakes his wheels. Correctness brings good fortune.","Before completion — moving forward brings bad fortune. It benefits to cross great waters.","Correctness brings good fortune. Regret disappears. Shock is used to attack the Devil's Country. Three years and there are rewards in the great kingdom.","Correctness brings good fortune. No regret. The light of the person of quality is genuine. Good fortune.","There is confidence so drinking wine is fine. No mistakes. But if one gets one's head wet, there is loss of what is right."]}
+};
+
+// table is static HTML
+
+function show(n,keepLine){
+  const d=H[n];
+  if(!d)return;
+  curHex=n;
+  if(!keepLine)changingLine=null;
+  const tri=TRI[n];
+  const lower=T[tri[0]];
+  const upper=T[tri[1]];
+  const L=hexLines(n);
+
+  // visual hexagram — drawn top (line 6) to bottom (line 1), each tappable
+  let visual='';
+  for(let p=6;p>=1;p--){
+    const yang=L[p-1]===1;
+    const isCh=changingLine===p;
+    const bar=yang?'<div class="bar yang"><span class="seg"></span></div>'
+                  :'<div class="bar yin"><span class="seg"></span><span class="seg"></span></div>';
+    const mark=isCh?(yang?'○':'✕'):'';
+    visual+=`<div class="hexline ${isCh?'changing':''}" onclick="pickLine(${p})">
+      <span class="pos">Line ${p}</span>${bar}<span class="mark">${mark}</span></div>`;
+  }
+
+  // transformation panel (only when a line is selected)
+  let transform='';
+  if(changingLine){
+    const rn=changingHex(n,changingLine);
+    const rd=H[rn];
+    transform=`<div class="transform">
+      <div class="transform-flow">
+        <div class="tf-hex"><span class="tf-sym">${s(n)}</span><div class="tf-meta"><span class="tf-num">Hexagram ${n}</span><span class="tf-name">${d.name}</span></div></div>
+        <span class="tf-arrow">→</span>
+        <button class="tf-link tf-hex" onclick="show(${rn})"><span class="tf-sym">${s(rn)}</span><div class="tf-meta"><span class="tf-num">Hexagram ${rn}</span><span class="tf-name">${rd.name}</span></div></button>
+      </div>
+      <div class="transform-note"><strong>Line ${changingLine} is changing.</strong> Read this line's text below as the heart of the reading. The situation moves from <em>${d.name}</em> toward <em>${rd.name}</em> — that is the direction of change.</div>
+      <button class="clear-changing" onclick="show(${n})">clear changing line</button>
+    </div>`;
+  }
+
+  // line texts — emphasize selected, dim others
+  const lineTexts=d.lines.map((t,i)=>{
+    const p=i+1;
+    let cls='line-block';
+    if(changingLine){cls+=(changingLine===p)?' active-line':' dimmed';}
+    return `<div class="${cls}"><div class="line-n">Line ${p} · from the bottom</div><div class="line-t">${t}</div></div>`;
+  }).join('');
+
+  // ADVANCED layer
+  const nuc=nuclearHex(n), opp=oppositeHex(n), rev=reversedHex(n);
+  const posRows=LINEPOS.map((txt,i)=>`<div class="pos-row ${i===4?'ruler':''}"><span class="pos-n">Line ${i+1}</span><span class="pos-d">${txt}</span></div>`).join('');
+  const advanced=`
+    <div class="d-section adv-section ${advanceMode?'show':''}" id="advSection">
+      <div class="d-label">Structure</div>
+      <div class="struct-grid">
+        <button class="struct-cell tf-link" onclick="show(${nuc})"><div class="struct-label">Nuclear · Hu Gua</div><div class="struct-sym">${s(nuc)}</div><div class="struct-name">${H[nuc].name}</div><div class="struct-num">Hexagram ${nuc}</div></button>
+        <button class="struct-cell tf-link" onclick="show(${opp})"><div class="struct-label">Opposite · Cuo</div><div class="struct-sym">${s(opp)}</div><div class="struct-name">${H[opp].name}</div><div class="struct-num">Hexagram ${opp}</div></button>
+        <button class="struct-cell tf-link" onclick="show(${rev})"><div class="struct-label">Reversed · Zong</div><div class="struct-sym">${s(rev)}</div><div class="struct-name">${H[rev].name}</div><div class="struct-num">Hexagram ${rev}</div></button>
+      </div>
+      <div class="struct-desc"><strong>Nuclear (Hu Gua):</strong> the hidden hexagram inside this one (lines 2-3-4 and 3-4-5) — the seed situation developing beneath the surface. <strong>Opposite (Cuo):</strong> every line inverted — the complementary state. <strong>Reversed (Zong):</strong> the hexagram turned upside down — the same situation seen from the other side.</div>
+      <div class="d-label" style="margin-top:18px">Line positions</div>
+      <div class="pos-ref">${posRows}</div>
+      <div class="struct-desc">★ Line 5 is most commonly the <strong>ruling line</strong> — though which line rules depends on the hexagram and the commentary tradition.</div>
+    </div>`;
+
+  document.getElementById('detailView').innerHTML=`
+    <div class="d-header">
+      <div class="d-sym">${s(n)}</div>
+      <div class="d-num">Hexagram ${n}</div>
+      <div class="d-name">${d.name}</div>
+      <div class="d-pinyin">${HZ[n]} · ${d.py}</div>
+      <div class="d-trigrams">
+        <span class="tri-tag">Upper: ${upper[1]} ${upper[0]}</span>
+        <span class="tri-tag">Lower: ${lower[1]} ${lower[0]}</span>
+      </div>
+      <button class="advance-toggle ${advanceMode?'on':''}" onclick="toggleAdvance()"><span class="dot"></span>${advanceMode?'Advanced view on':'Advanced view'}</button>
+    </div>
+    <div class="d-section">
+      <div class="d-label">Situation</div>
+      <div class="d-text">${d.sit}</div>
+    </div>
+    <div class="d-section">
+      <div class="d-label">Lines</div>
+      <div class="lines-hint">Tap a line to mark it as the changing line.</div>
+      <div class="hexlines">${visual}</div>
+      ${transform}
+    </div>
+    <div class="d-section">
+      <div class="d-label">Line texts${changingLine?' · changing line highlighted':''}</div>
+      ${lineTexts}
+    </div>
+    ${advanced}`;
+  document.getElementById('detailView').classList.add('active');
+  document.getElementById('tableView').style.display='none';
+  document.getElementById('backBtn').classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function pickLine(p){
+  changingLine=(changingLine===p)?null:p;
+  show(curHex,true);
+}
+function toggleAdvance(){
+  advanceMode=!advanceMode;
+  show(curHex,true);
+}
+
+function showTable(){
+  document.getElementById('detailView').classList.remove('active');
+  document.getElementById('tableView').style.display='block';
+  document.getElementById('backBtn').classList.remove('active');
+}
+
+const TR={
+  heaven:{sym:"☰",hz:"乾",py:"Qián",name:"Heaven",
+    nature:"Pure yang. Maximum creative force, unyielding strength. The initiating principle — it starts things into motion.",
+    lower:"Internally you are operating from a position of strength, clarity, and creative drive. The impulse to lead and initiate comes from within.",
+    upper:"The external situation demands decisive leadership and bold action. Conditions favor those who move with authority and clear direction.",
+    attrs:["Element: Metal / Sky","Direction: Northwest","Season: Late autumn","Family: Father","Body: Head"]},
+  lake:{sym:"☱",hz:"兌",py:"Duì",name:"Lake",
+    nature:"Yin above two yangs. Joy, openness, and exchange. The surface of the lake is receptive and reflective — it gives back what it receives.",
+    lower:"Internally you are open, communicative, and willing to engage. There is genuine pleasure in the process, not just the outcome.",
+    upper:"The external situation involves exchange, negotiation, or mutual enjoyment. What you give and receive from others shapes the outcome.",
+    attrs:["Element: Metal / Water","Direction: West","Season: Autumn","Family: Youngest daughter","Body: Mouth"]},
+  fire:{sym:"☲",hz:"離",py:"Lí",name:"Fire",
+    nature:"Yin between two yangs. Clarity, brightness, and clinging. Fire must attach to something to burn — it cannot sustain itself in isolation.",
+    lower:"Internally you are seeing clearly and with intelligence. But you may be dependent on certain conditions or attachments to maintain this clarity.",
+    upper:"The external situation is highly visible and exposed. Things are being illuminated — what is hidden will be seen. Choose what you attach to with care.",
+    attrs:["Element: Fire","Direction: South","Season: Summer","Family: Middle daughter","Body: Eyes"]},
+  thunder:{sym:"☳",hz:"震",py:"Zhèn",name:"Thunder",
+    nature:"Yang below two yins. Sudden arousal, shock, and movement. The energy of a lightning strike — explosive initiation that breaks stillness.",
+    lower:"Internally you are being jolted or energized. Something is waking up inside — instinct, urgency, or a surge of readiness to move.",
+    upper:"The external situation involves sudden movement or shock. Something is forcing change whether you are ready or not. The ground is shifting.",
+    attrs:["Element: Wood","Direction: East","Season: Spring","Family: Eldest son","Body: Feet"]},
+  wind:{sym:"☴",hz:"巽",py:"Xùn",name:"Wind",
+    nature:"Yin below two yangs. Gentle penetration and gradual influence. Wind finds every gap and works through consistently without forcing.",
+    lower:"Internally you are working through things slowly and patiently. The approach is flexible and persistent rather than direct and forceful.",
+    upper:"The external situation rewards consistent, gradual pressure. Entering quietly and steadily achieves more than any sudden push.",
+    attrs:["Element: Wood","Direction: Southeast","Season: Late spring","Family: Eldest daughter","Body: Thighs"]},
+  water:{sym:"☵",hz:"坎",py:"Kǎn",name:"Water",
+    nature:"Yang trapped between two yins. Danger, depth, and the capacity to flow through obstacles rather than over them.",
+    lower:"Internally you are carrying real tension or navigating uncertainty. There is risk being managed quietly beneath the surface.",
+    upper:"The external situation contains genuine danger or hidden difficulty. Do not underestimate what you are facing. Move carefully and maintain inner steadiness.",
+    attrs:["Element: Water","Direction: North","Season: Winter","Family: Middle son","Body: Ears"]},
+  mountain:{sym:"☶",hz:"艮",py:"Gèn",name:"Mountain",
+    nature:"Yang above two yins. Stillness, stopping, and consolidation. The mountain does not move — it holds its ground completely.",
+    lower:"Internally you are consolidating rather than advancing. The right inner posture is stillness — not from weakness but from deliberate choice.",
+    upper:"The external situation is blocked or demands that you stop. Forward movement is not the answer here. Waiting and holding are correct.",
+    attrs:["Element: Earth","Direction: Northeast","Season: Late winter","Family: Youngest son","Body: Hands"]},
+  earth:{sym:"☷",hz:"坤",py:"Kūn",name:"Earth",
+    nature:"Pure yin. Receptivity, yielding, and endurance. Earth does not initiate — it receives, holds, and sustains what Heaven begins.",
+    lower:"Internally you are in a receptive, patient state. The drive is not to push but to support, hold, and allow things to develop naturally.",
+    upper:"The external situation requires yielding and sustained endurance rather than initiative. Follow the lead of what is already moving.",
+    attrs:["Element: Earth","Direction: Southwest","Season: Late summer","Family: Mother","Body: Abdomen"]}
+};
+
+function showTri(key){
+  const d=TR[key];
+  if(!d)return;
+  const attrs=d.attrs.map(a=>`<div class="line-block"><div class="line-t">${a}</div></div>`).join('');
+  document.getElementById('detailView').innerHTML=`
+    <div class="d-header">
+      <div class="d-sym">${d.sym}</div>
+      <div class="d-num">Trigram</div>
+      <div class="d-name">${d.name}</div>
+      <div class="d-pinyin">${d.hz} · ${d.py}</div>
+    </div>
+    <div class="d-section">
+      <div class="d-label">Nature</div>
+      <div class="d-text">${d.nature}</div>
+    </div>
+    <div class="d-section">
+      <div class="d-label">As lower trigram — internal state</div>
+      <div class="d-text">${d.lower}</div>
+    </div>
+    <div class="d-section">
+      <div class="d-label">As upper trigram — external situation</div>
+      <div class="d-text">${d.upper}</div>
+    </div>
+    <div class="d-section">
+      <div class="d-label">Attributes</div>
+      ${attrs}
+    </div>`;
+  document.getElementById('detailView').classList.add('active');
+  document.getElementById('tableView').style.display='none';
+  document.getElementById('backBtn').classList.add('active');
+  window.scrollTo(0,0);
+}
+
+
+</script>
+</body>
+</html>
