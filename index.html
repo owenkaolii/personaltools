@@ -45,9 +45,18 @@ body{
   transform:translateY(14px);
   animation:settle 1.5s cubic-bezier(.22,.61,.36,1) forwards;
 }
-.cl:nth-child(1){animation-delay:.15s}
-.cl:nth-child(2){animation-delay:.55s}
-.cl:nth-child(3){animation-delay:.95s}
+.cl.q{
+  font-size:clamp(20px,4.6vw,25px);
+  font-style:italic;
+  color:var(--ink2);
+  line-height:1.5;
+  margin:.10em 0 .22em;
+}
+.cl:nth-child(1){animation-delay:.10s}
+.cl:nth-child(2){animation-delay:.45s}
+.cl:nth-child(3){animation-delay:.80s}
+.cl:nth-child(4){animation-delay:1.15s}
+.cl:nth-child(5){animation-delay:1.50s}
 @keyframes settle{to{opacity:1;transform:none}}
 
 /* doors — indistinguishable until touched */
@@ -139,7 +148,9 @@ body.open .foot{opacity:.85;color:var(--ink2)}
   ────────────────────────────────────────────────────────────── -->
   <div class="line">
     <span class="cl">Time is <a class="door" data-go="calendar.html">counted</a></span>
+    <span class="cl q">what is spent does not return</span>
     <span class="cl">change is <a class="door" data-go="iching.html">consulted</a></span>
+    <span class="cl q">the answer is not the outcome</span>
     <span class="cl">the rest is fog<span class="seam" id="seam">.</span></span>
   </div>
 
