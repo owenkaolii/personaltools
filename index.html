@@ -122,6 +122,65 @@ body.open .entry:nth-of-type(2){transition-delay:.56s}
 }
 body.open .foot{opacity:.85;color:var(--ink2)}
 
+
+/* ══ DEPARTURE ══
+   beat 1  held breath   — 420ms, nothing moves
+   beat 2  the word wakes — chosen door brightens, rule completes, glow
+   beat 3  the drain      — everything else desaturates and recedes; the word holds, then goes
+*/
+body.leaving{pointer-events:none}
+
+/* everything that is not the chosen word */
+body.leaving .cl{ animation:none !important }   /* release the entrance animation's hold */
+body.leaving .cl,
+body.leaving .foot,
+body.leaving .veil{
+  transition:opacity 620ms cubic-bezier(.4,0,.6,1), filter 620ms cubic-bezier(.4,0,.6,1), transform 900ms cubic-bezier(.32,0,.24,1);
+}
+body.drain .cl{ opacity:0; filter:saturate(0) blur(2.5px); transform:translateY(-8px) }
+body.drain .foot{ opacity:0 }
+body.drain .veil{ opacity:0 }
+
+/* the chosen word is lifted onto its own layer so the drain cannot touch it */
+#ghost{
+  position:fixed; z-index:5; margin:0; padding:0;
+  font-family:var(--display); font-weight:500;
+  color:var(--cinnabar);
+  pointer-events:none; opacity:0;
+  text-shadow:0 0 0 rgba(203,70,50,0);
+  transition:opacity 420ms ease, text-shadow 900ms ease, transform 1500ms cubic-bezier(.32,0,.24,1);
+}
+#ghost.on{ opacity:1 }
+#ghost.glow{ text-shadow:0 0 26px rgba(203,70,50,.55), 0 0 60px rgba(203,70,50,.22) }
+#ghost.out{
+  opacity:0; transform:translateY(-4px);
+  text-shadow:0 0 70px rgba(203,70,50,0);
+  transition:opacity 620ms cubic-bezier(.5,0,.75,0), text-shadow 620ms ease, transform 620ms ease;
+}
+#ghost::after{
+  content:""; position:absolute; left:0; right:100%; bottom:-2px; height:1px;
+  background:var(--cinnabar); transition:right 520ms cubic-bezier(.22,.61,.36,1);
+}
+#ghost.on::after{ right:0 }
+#ghost.out::after{ right:100%; transition:right 480ms cubic-bezier(.5,0,.75,0) }
+
+/* the door itself */
+.door{ will-change:color }
+body.leaving .door.chosen{ color:var(--cinnabar); transition:color 420ms ease }
+
+/* the field itself deepens */
+body{transition:background-color 1200ms ease}
+body.drain{background:#0B0906}
+
+/* a page arriving should not flash */
+.plate{animation:arrive 900ms ease both}
+@keyframes arrive{from{opacity:0}to{opacity:1}}
+
+@media(prefers-reduced-motion:reduce){
+  body.leaving *,body.drain *,body.vanish *{transition-duration:.01ms!important}
+  .plate{animation:none}
+}
+
 @media(max-width:520px){
   body{padding:2rem 1.3rem}
   .cl{line-height:1.34;margin-bottom:.16em}
@@ -172,8 +231,73 @@ body.open .foot{opacity:.85;color:var(--ink2)}
 
 <script>
 "use strict";
+/* ── departure sequence ────────────────────────────────
+   held breath → the word wakes → the drain → gone      */
+var LEAVING=false;
+function depart(door){
+  if(LEAVING)return; LEAVING=true;
+  var dest=door.dataset.go, body=document.body;
+
+  // clone the word into a fixed overlay, pinned exactly where it sits
+  var r=door.getBoundingClientRect();
+  var cs=getComputedStyle(door);
+  var g=document.createElement("span");
+  g.id="ghost";
+  g.textContent=door.textContent;
+  g.style.left=r.left+"px";
+  g.style.top=r.top+"px";
+  g.style.fontSize=cs.fontSize;
+  g.style.lineHeight=cs.lineHeight;
+  g.style.letterSpacing=cs.letterSpacing;
+  document.body.appendChild(g);
+
+  door.classList.add("chosen");
+  var line=door.closest(".cl"); if(line)line.classList.add("chosen");
+
+  // beat 1 — held breath
+  setTimeout(function(){
+    body.classList.add("leaving");
+    requestAnimationFrame(function(){
+      requestAnimationFrame(function(){
+        g.classList.add("on");                       // the word wakes on its own layer
+        setTimeout(function(){ g.classList.add("glow"); },160);
+      });
+    });
+
+    // beat 2 — everything else drains away beneath it
+    setTimeout(function(){ body.classList.add("drain"); }, 400);
+
+    // beat 3 — the word withdraws
+    setTimeout(function(){ g.classList.add("out"); }, 1350);
+
+    setTimeout(function(){ location.href = dest; }, 1920);
+  }, 420);
+}
+
 document.querySelectorAll(".door").forEach(function(d){
-  d.addEventListener("click",function(){ location.href = d.dataset.go; });
+  d.addEventListener("click",function(e){ e.preventDefault(); depart(d); });
+});
+
+/* the revealed list departs the same way, without the word ceremony */
+document.querySelectorAll(".entry").forEach(function(a){
+  a.addEventListener("click",function(e){
+    if(LEAVING){e.preventDefault();return}
+    e.preventDefault(); LEAVING=true;
+    var dest=a.getAttribute("href");
+    document.body.classList.add("leaving");
+    setTimeout(function(){document.body.classList.add("drain")},60);
+    setTimeout(function(){location.href=dest},900);
+  });
+});
+
+/* returning to this page from cache should not show a drained screen */
+window.addEventListener("pageshow",function(e){
+  if(e.persisted){
+    LEAVING=false;
+    document.body.classList.remove("leaving","woken","drain","vanish");
+    document.querySelectorAll(".chosen").forEach(function(el){el.classList.remove("chosen")});
+    var g=document.getElementById("ghost"); if(g)g.remove();
+  }
 });
 
 var seam = document.getElementById("seam");
