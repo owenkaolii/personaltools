@@ -272,6 +272,14 @@ function merge(base,inc){
 }
 
 /* ── the gate ── */
+/* ── the session key ──
+   One password opens every locked page. Once given (here, on another page, or on
+   the index) it is held for this tab only, and gone when the tab closes or a page is locked. */
+var SKEY="pt_session";
+function sessGet(){try{return sessionStorage.getItem(SKEY);}catch(e){return null;}}
+function sessSet(pw){try{sessionStorage.setItem(SKEY,pw);}catch(e){}}
+function sessClear(){try{sessionStorage.removeItem(SKEY);}catch(e){}}
+
 function showGate(mode,note){
   MODE=mode;
   document.getElementById("app").style.display="none";
@@ -305,7 +313,7 @@ async function gateSubmit(e){
     if(pw!==document.getElementById("gPw2").value){err.textContent="The two do not match.";return;}
     if(pw.length<10){err.textContent="Ten characters at least. Longer is better.";return;}
     btn.disabled=true;err.textContent="";
-    SALT=rnd(16);CK=await deriveKey(pw,SALT,ITER);PW=pw;
+    SALT=rnd(16);CK=await deriveKey(pw,SALT,ITER);PW=pw;sessSet(pw);
     S=PENDING;PENDING=null;
     await save();
     try{localStorage.removeItem(OLDKEY);}catch(x){}
@@ -318,7 +326,7 @@ async function gateSubmit(e){
   try{
     var r=await open_(blob,pw);
     if(!isPlain(r.obj))throw 0;
-    CK=r.key;SALT=r.salt;PW=pw;S=r.obj;PBLOB=null;
+    CK=r.key;SALT=r.salt;PW=pw;S=r.obj;PBLOB=null;sessSet(pw);
     await save();
     btn.disabled=false;showApp();
   }catch(x){
@@ -327,6 +335,7 @@ async function gateSubmit(e){
   }
 }
 function lock(){
+  sessClear();
   S=null;CK=null;SALT=null;PW=null;
   showGate("unlock");
 }
@@ -637,7 +646,15 @@ document.getElementById("snapDate").value=new Date().toISOString().slice(0,10);
     document.getElementById("gate").querySelector(".btn.q").style.display="none";
     return;
   }
-  if(readStore()){showGate("unlock");return;}
+  var blob=readStore(), sp=sessGet();
+  if(blob&&sp){                                   // already opened elsewhere this session
+    open_(blob,sp).then(function(r){
+      if(!isPlain(r.obj))throw 0;
+      CK=r.key;SALT=r.salt;PW=sp;S=r.obj;showApp();
+    }).catch(function(){showGate("unlock");});
+    return;
+  }
+  if(blob){showGate("unlock");return;}
   try{                                            // figures saved before the lock existed
     var old=JSON.parse(localStorage.getItem(OLDKEY)||"null");
     if(isPlain(old)){PENDING=merge(null,old);

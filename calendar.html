@@ -330,6 +330,14 @@ async function save(){
   saveTimer=setTimeout(function(){el.textContent="";},1600);
 }
 
+/* ── the session key ──
+   One password opens every locked page. Once given (here, on another page, or on
+   the index) it is held for this tab only, and gone when the tab closes or a page is locked. */
+var SKEY="pt_session";
+function sessGet(){try{return sessionStorage.getItem(SKEY);}catch(e){return null;}}
+function sessSet(pw){try{sessionStorage.setItem(SKEY,pw);}catch(e){}}
+function sessClear(){try{sessionStorage.removeItem(SKEY);}catch(e){}}
+
 /* ── the key ──
    Tap the full stop: a bare line appears. Enter opens. Wrong, it shakes and clears.
    The first time on a device, the password is typed twice to set it. */
@@ -354,14 +362,14 @@ async function keySubmit(e){
     if(FIRST===null){if(pw.length<10){no();return;}FIRST=pw;i.value="";return;}
     if(pw!==FIRST){FIRST=null;no();return;}
     SALT=rnd(16);CK=await deriveKey(pw,SALT,ITER);PW=pw;FIRST=null;
-    P={v:1,birth:null,span:80,events:[]};
+    P={v:1,birth:null,span:80,events:[]};sessSet(pw);
     await save();unlocked();return;
   }
   i.disabled=true;
   try{
     var r=await open_(blob,pw);
     if(!isPlain(r.obj))throw 0;
-    CK=r.key;SALT=r.salt;PW=pw;P=r.obj;
+    CK=r.key;SALT=r.salt;PW=pw;P=r.obj;sessSet(pw);
     i.disabled=false;unlocked();
   }catch(x){i.disabled=false;no();}
 }
@@ -372,6 +380,7 @@ function unlocked(){
   renderPriv();
 }
 function lockUp(){
+  sessClear();
   P=null;CK=null;SALT=null;PW=null;
   document.body.classList.remove("open");
   document.getElementById("rows").innerHTML="";
@@ -501,6 +510,14 @@ function doImport(input){
 }
 
 renderYear();
+(function(){                                      // already opened elsewhere this session
+  var blob=readStore(), sp=sessGet();
+  if(!blob||!sp||!window.crypto||!crypto.subtle)return;
+  open_(blob,sp).then(function(r){
+    if(!isPlain(r.obj))throw 0;
+    CK=r.key;SALT=r.salt;PW=sp;P=r.obj;unlocked();
+  }).catch(function(){});
+})();
 </script>
 </body>
 </html>

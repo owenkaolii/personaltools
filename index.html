@@ -113,6 +113,15 @@ body.open .entry:nth-of-type(4){transition-delay:.84s}
 body.open .entry:nth-of-type(5){transition-delay:.98s}
 body.open .entry:nth-of-type(6){transition-delay:1.12s}
 .entry:last-of-type{border-bottom:none}
+
+/* the key: a bare line above the list, only while the session is locked */
+.key{display:block;margin:0 auto 1.4rem;text-align:center}
+.key input{font-family:var(--serif);font-size:15px;color:var(--ink);background:none;border:none;
+  border-bottom:1px solid var(--rule);width:160px;padding:6px 2px;letter-spacing:.2em;text-align:center}
+.key input:focus{outline:none;border-color:var(--cinnabar)}
+.key.no input{animation:no .32s ease}
+@keyframes no{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+body.keyed .key{display:none}
 .entry:hover{color:var(--ink);border-color:var(--cinnabar)}
 .entry .n{font-family:var(--display);font-size:20px;font-weight:500;flex:1}
 .entry .g{font-style:italic;font-size:12.5px;color:var(--ink3);letter-spacing:.01em}
@@ -223,6 +232,9 @@ body.drain{background:#0B0906}
   </div>
 
   <div class="veil" id="veil">
+    <form class="key" id="key" autocomplete="off">
+      <input type="password" id="kPw" aria-label="key" autocomplete="current-password">
+    </form>
     <div class="rule"></div>
     <a class="entry" href="iching.html">
       <span class="n">Changes</span>
@@ -316,6 +328,48 @@ window.addEventListener("pageshow",function(e){
 var seam = document.getElementById("seam");
 seam.addEventListener("click", function(){
   document.body.classList.toggle("open");
+  if(document.body.classList.contains("open")&&!document.body.classList.contains("keyed"))
+    setTimeout(function(){document.getElementById("kPw").focus();},500);
+});
+
+/* ── the session key ──
+   One password opens every locked page. Given here, it is held for this tab only:
+   Net Worth and the calendar's private part then open by themselves.
+   It is checked against whichever locked store this device holds. */
+var SKEY="pt_session";
+function sessGet(){try{return sessionStorage.getItem(SKEY);}catch(e){return null;}}
+function sessSet(pw){try{sessionStorage.setItem(SKEY,pw);}catch(e){}}
+function b64d(t){var b=atob(t),u=new Uint8Array(b.length);for(var i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return u;}
+async function opens(blob,pw){
+  try{
+    var base=await crypto.subtle.importKey("raw",new TextEncoder().encode(pw),"PBKDF2",false,["deriveKey"]);
+    var key=await crypto.subtle.deriveKey({name:"PBKDF2",salt:b64d(blob.salt),iterations:blob.iter||600000,hash:"SHA-256"},
+      base,{name:"AES-GCM",length:256},false,["decrypt"]);
+    await crypto.subtle.decrypt({name:"AES-GCM",iv:b64d(blob.iv)},key,b64d(blob.ct));
+    return true;
+  }catch(e){return false;}
+}
+function stores(){
+  var out=[];
+  ["networth_enc_v1","calendar_enc_v1"].forEach(function(k){
+    try{var o=JSON.parse(localStorage.getItem(k)||"null");if(o&&o.ct&&o.iv&&o.salt)out.push(o);}catch(e){}
+  });
+  return out;
+}
+if(sessGet()||!window.crypto||!crypto.subtle)document.body.classList.add("keyed");
+document.getElementById("key").addEventListener("submit",async function(e){
+  e.preventDefault();
+  var f=this, i=document.getElementById("kPw"), pw=i.value;
+  function no(){i.value="";f.classList.remove("no");void f.offsetWidth;f.classList.add("no");}
+  if(!pw){no();return;}
+  var list=stores();
+  if(!list.length){no();return;}                  // nothing locked on this device yet
+  i.disabled=true;
+  var ok=await opens(list[0],pw);
+  i.disabled=false;
+  if(!ok){no();return;}
+  sessSet(pw);i.value="";i.blur();
+  document.body.classList.add("keyed");
 });
 
 // quiet date at the foot
