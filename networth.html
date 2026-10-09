@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Net Worth</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Spectral:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#14110B;--ink:#ECE2CE;--ink2:#B9AE97;--ink3:#847A67;
+  --rule:#332C1E;--rule2:#221D14;--cinnabar:#CB4632;--jade:#6E8F6A;
+  --serif:'Spectral',Georgia,serif;--display:'Cormorant Garamond',Georgia,serif;
+}
+body{background:var(--bg);color:var(--ink);font-family:var(--serif);
+  padding:2rem 1.4rem 5rem;font-size:15px;line-height:1.6}
+.wrap{max-width:760px;margin:0 auto}
+
+.back{display:inline-flex;align-items:center;gap:8px;margin-bottom:1.5rem;background:none;border:none;
+  font-family:var(--serif);font-style:italic;font-size:14px;color:var(--cinnabar);cursor:pointer;padding:0;text-decoration:none}
+.back:hover{color:var(--ink)}
+.masthead{padding-bottom:1.1rem;margin-bottom:1.8rem;border-bottom:1px solid var(--rule)}
+.masthead h1{font-family:var(--display);font-size:34px;font-weight:600;line-height:1;margin-bottom:6px}
+.masthead p{font-style:italic;font-size:14px;color:var(--ink3)}
+
+/* ── the standing total ── */
+.total{margin-bottom:2.6rem}
+.total .lbl{font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink3);margin-bottom:.5rem}
+.total .big{font-family:var(--display);font-size:clamp(38px,9vw,54px);font-weight:600;line-height:1;
+  letter-spacing:-.01em}
+.total .sub{font-style:italic;font-size:14px;color:var(--ink2);margin-top:.45rem}
+.total .sub b{font-style:normal;font-weight:500;color:var(--cinnabar)}
+
+/* ── bars ── */
+.bar{height:2px;background:var(--rule);position:relative;margin:.5rem 0 0;overflow:hidden}
+.bar i{position:absolute;left:0;top:0;bottom:0;background:var(--cinnabar);
+  transition:width .55s cubic-bezier(.22,.61,.36,1)}
+.bar.full i{background:var(--jade)}
+.total .bar{height:3px;margin-top:.9rem}
+
+/* ── sections ── */
+.sec{margin-bottom:2.4rem}
+.sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:1rem;
+  padding-bottom:.55rem;border-bottom:1px solid var(--rule);margin-bottom:.3rem}
+.sec-head h2{font-family:var(--display);font-size:21px;font-weight:600;letter-spacing:.01em}
+.sec-head .meta{font-size:12.5px;color:var(--ink3);font-style:italic;text-align:right;white-space:nowrap}
+
+.row{padding:.95rem 0;border-bottom:1px solid var(--rule2)}
+.row:last-of-type{border-bottom:none}
+.r-top{display:flex;align-items:baseline;justify-content:space-between;gap:.8rem}
+.r-name{font-family:var(--display);font-size:18px;font-weight:500;background:none;border:none;
+  color:var(--ink);padding:0;width:100%;max-width:300px;font-variant-numeric:lining-nums}
+.r-name:focus{outline:none;color:var(--cinnabar)}
+.r-pct{font-family:var(--display);font-size:19px;font-weight:600;color:var(--cinnabar);white-space:nowrap}
+.r-pct.full{color:var(--jade)}
+.r-nums{display:flex;align-items:baseline;gap:.4rem;margin-top:.15rem;font-size:14px;color:var(--ink2);flex-wrap:wrap}
+.r-nums .slash{color:var(--ink3)}
+.r-drift{font-size:12.5px;font-style:italic;color:var(--ink3);margin-top:.4rem}
+.r-drift b{font-style:normal;font-weight:500}
+.r-drift b.over{color:var(--cinnabar)}
+.r-drift b.under{color:var(--ink2)}
+
+/* number fields — a rule you can type on */
+.num{font-family:var(--serif);font-size:14px;color:var(--ink);background:none;
+  border:none;border-bottom:1px solid var(--rule);padding:1px 2px 2px;text-align:right;
+  width:116px;transition:border-color .3s ease}
+.num:focus{outline:none;border-color:var(--cinnabar)}
+.num.tgt{color:var(--ink3);width:116px}
+.num.wt{width:52px;text-align:right}
+.rp{color:var(--ink3);font-size:12.5px}
+
+.kill{background:none;border:none;color:var(--rule);cursor:pointer;font-size:16px;
+  padding:0 .35rem;line-height:1;transition:color .25s ease;font-family:var(--serif)}
+.row:hover .kill{color:var(--ink3)}
+.kill:hover{color:var(--cinnabar)!important}
+
+.addrow{background:none;border:none;font-family:var(--serif);font-style:italic;font-size:13px;
+  color:var(--ink3);cursor:pointer;padding:.6rem 0 0}
+.addrow:hover{color:var(--cinnabar)}
+
+/* ── history ── */
+.chartbox{margin:1rem 0 .4rem}
+#chart{width:100%;display:block;overflow:visible}
+.ctog{display:flex;gap:1rem;margin-bottom:.9rem}
+.ctog button{background:none;border:none;font-family:var(--serif);font-size:12px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--ink3);cursor:pointer;padding:0 0 3px;border-bottom:1px solid transparent}
+.ctog button.on{color:var(--cinnabar);border-color:var(--cinnabar)}
+
+.pts{margin-top:1.3rem}
+.pt{display:flex;align-items:baseline;gap:.9rem;padding:.5rem 0;border-bottom:1px solid var(--rule2);font-size:14px}
+.pt:last-child{border-bottom:none}
+.pt .d{color:var(--ink3);font-size:13px;width:104px;flex:0 0 auto}
+.pt .v{color:var(--ink2);flex:1}
+.pt .v em{font-style:normal;color:var(--ink3);font-size:12.5px;margin-left:.5rem}
+.snap{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;margin-top:1.1rem}
+.ctl{font-family:var(--serif);font-size:14px;padding:7px 10px;border-radius:3px;
+  border:1px solid var(--rule);background:#1B170F;color:var(--ink)}
+.ctl:focus{outline:none;border-color:var(--cinnabar)}
+.btn{font-family:var(--display);font-size:15px;font-weight:600;padding:7px 16px;border-radius:3px;
+  border:1px solid var(--cinnabar);background:none;color:var(--cinnabar);cursor:pointer;letter-spacing:.02em}
+.btn:hover{background:var(--cinnabar);color:#14110B}
+.btn.q{border-color:var(--rule);color:var(--ink3)}
+.btn.q:hover{background:none;border-color:var(--ink3);color:var(--ink2)}
+
+.note{font-size:12.5px;color:var(--ink3);font-style:italic;line-height:1.65;
+  border-left:1px solid var(--rule);padding-left:12px;margin-top:1rem}
+
+.foot{margin-top:3rem;padding-top:1.3rem;border-top:1px solid var(--rule);
+  display:flex;gap:.6rem;flex-wrap:wrap;align-items:center}
+.foot .said{font-size:12.5px;color:var(--ink3);font-style:italic;margin-left:auto}
+
+@media(max-width:560px){
+  body{padding:1.5rem 1.1rem 4rem}
+  .masthead h1{font-size:29px}
+  .num,.num.tgt{width:104px}
+  .pt .d{width:92px}
+  .sec-head{flex-direction:column;align-items:flex-start;gap:.1rem}
+  .sec-head .meta{text-align:left;white-space:normal}
+  .foot .said{margin-left:0;width:100%}
+}
+
+@keyframes pt-arrive{from{opacity:0}to{opacity:1}}
+body{animation:pt-arrive 760ms ease both}
+@media(prefers-reduced-motion:reduce){body{animation:none}*{transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="index.html">&larr; back</a>
+  <div class="masthead">
+    <h1>Net Worth</h1>
+    <p>What is held, against what it is for</p>
+  </div>
+
+  <div class="total">
+    <div class="lbl">Held</div>
+    <div class="big" id="tHeld">&mdash;</div>
+    <div class="sub">of <span id="tTarget">&mdash;</span> &middot; <b id="tPct">&mdash;</b></div>
+    <div class="bar"><i id="tBar" style="width:0"></i></div>
+  </div>
+
+  <div id="sections"></div>
+
+  <div class="sec">
+    <div class="sec-head">
+      <h2>History</h2>
+      <div class="meta" id="hMeta"></div>
+    </div>
+
+    <div class="ctog">
+      <button id="cPort" class="on" onclick="setSeries('portfolio')">Portfolio</button>
+      <button id="cTot" onclick="setSeries('total')">Everything</button>
+    </div>
+    <div class="chartbox"><svg id="chart" height="190"></svg></div>
+
+    <div class="snap">
+      <input class="ctl" type="date" id="snapDate">
+      <button class="btn" onclick="addSnap()">Record today</button>
+      <button class="btn q" onclick="togglePts()" id="ptsBtn">Show points</button>
+    </div>
+    <div class="pts" id="pts" style="display:none"></div>
+
+    <div class="note">
+      A snapshot stores both numbers: the portfolio on its own, and everything including
+      the education fund and cash. Points recorded before this page existed hold the portfolio only.
+    </div>
+  </div>
+
+  <div class="foot">
+    <button class="btn q" onclick="doExport()">Export</button>
+    <button class="btn q" onclick="document.getElementById('imp').click()">Import</button>
+    <input type="file" id="imp" accept=".json" style="display:none" onchange="doImport(this)">
+    <button class="btn q" onclick="wipe()">Reset</button>
+    <span class="said" id="saved"></span>
+  </div>
+</div>
+
+<script>
+"use strict";
+
+/* ─────────────────────────────────────────────────────────────
+   State. Everything lives in one object, saved to localStorage.
+   Seeded from the figures of 9 October 2026.
+   ───────────────────────────────────────────────────────────── */
+var KEY="networth_v1";
+
+var SEED={
+  v:1,
+  groups:[
+    {key:"edu",  label:"Sister's education", weights:false},
+    {key:"cash", label:"Emergency fund",     weights:false},
+    {key:"port", label:"Portfolio",          weights:true}
+  ],
+  rows:[
+    {id:"r1", group:"edu",  name:"RDPU", amount:14895450, target:15000000, weight:null},
+    {id:"r2", group:"cash", name:"Cash", amount:1943778,  target:13500000, weight:null},
+    {id:"r3", group:"port", name:"BTC",  amount:6912437,  target:15000000, weight:30},
+    {id:"r4", group:"port", name:"SCHD", amount:5462469,  target:12500000, weight:25},
+    {id:"r5", group:"port", name:"VEA",  amount:3712756,  target:11250000, weight:22.5},
+    {id:"r6", group:"port", name:"VWO",  amount:3767560,  target:11250000, weight:22.5}
+  ],
+  history:[
+    {date:"2026-06-02", portfolio:16388358, total:null},
+    {date:"2026-07-02", portfolio:18003866, total:null},
+    {date:"2026-08-01", portfolio:18820006, total:null},
+    {date:"2026-09-02", portfolio:19905539, total:null},
+    {date:"2026-10-09", portfolio:19855222, total:36694450}
+  ]
+};
+
+var S=load();
+var SERIES="portfolio";
+var SHOWPTS=false;
+
+function load(){
+  try{
+    var raw=localStorage.getItem(KEY);
+    if(!raw)return JSON.parse(JSON.stringify(SEED));
+    var o=JSON.parse(raw);
+    if(!o||!o.rows)return JSON.parse(JSON.stringify(SEED));
+    return o;
+  }catch(e){return JSON.parse(JSON.stringify(SEED));}
+}
+var saveTimer;
+function save(){
+  try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}
+  var el=document.getElementById("saved");
+  el.textContent="saved";
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(function(){el.textContent="";},1600);
+}
+
+/* ── numbers ── */
+function fmt(n){
+  if(n===null||n===undefined||isNaN(n))return "—";
+  return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g,",");
+}
+function rp(n){return "Rp "+fmt(n);}
+function parseNum(s){
+  var v=parseFloat(String(s).replace(/[^0-9.\-]/g,""));
+  return isNaN(v)?0:v;
+}
+function pct(a,b){ if(!b)return 0; return a/b*100; }
+function pctTxt(p){ return (p>=100?Math.round(p):p.toFixed(p<10?1:0))+"%"; }
+
+function rowsOf(g){return S.rows.filter(function(r){return r.group===g;});}
+function sum(list,f){var t=0;for(var i=0;i<list.length;i++)t+=f(list[i])||0;return t;}
+function heldOf(g){return sum(rowsOf(g),function(r){return r.amount;});}
+function targetOf(g){return sum(rowsOf(g),function(r){return r.target;});}
+function heldAll(){return sum(S.rows,function(r){return r.amount;});}
+function targetAll(){return sum(S.rows,function(r){return r.target;});}
+
+/* ─────────────────────────────────────────────────────────────
+   Render
+   ───────────────────────────────────────────────────────────── */
+function render(){
+  var h=heldAll(), t=targetAll(), p=pct(h,t);
+  document.getElementById("tHeld").textContent=rp(h);
+  document.getElementById("tTarget").textContent=rp(t);
+  document.getElementById("tPct").textContent=pctTxt(p);
+  var tb=document.getElementById("tBar");
+  tb.style.width=Math.min(100,p)+"%";
+  tb.parentNode.classList.toggle("full",p>=100);
+
+  var out="";
+  S.groups.forEach(function(g){
+    var gh=heldOf(g.key), gt=targetOf(g.key), gp=pct(gh,gt);
+    out+='<div class="sec">'+
+      '<div class="sec-head"><h2>'+esc(g.label)+'</h2>'+
+      '<div class="meta">'+rp(gh)+' of '+rp(gt)+' &middot; '+pctTxt(gp)+'</div></div>';
+
+    rowsOf(g.key).forEach(function(r){
+      var rpc=pct(r.amount,r.target), fullc=rpc>=100?" full":"";
+      out+='<div class="row">'+
+        '<div class="r-top">'+
+          '<input class="r-name" value="'+esc(r.name)+'" oninput="setName(\''+r.id+'\',this.value)">'+
+          '<span class="r-pct'+fullc+'">'+pctTxt(rpc)+'</span>'+
+        '</div>'+
+        '<div class="r-nums">'+
+          '<span class="rp">Rp</span>'+
+          '<input class="num" value="'+fmt(r.amount)+'" inputmode="numeric" '+
+            'onfocus="raw(this)" onblur="setAmt(\''+r.id+'\',this)" onkeydown="if(event.key===\'Enter\')this.blur()">'+
+          '<span class="slash">of</span>'+
+          '<span class="rp">Rp</span>'+
+          '<input class="num tgt" value="'+fmt(r.target)+'" inputmode="numeric" '+
+            'onfocus="raw(this)" onblur="setTgt(\''+r.id+'\',this)" onkeydown="if(event.key===\'Enter\')this.blur()">'+
+          '<button class="kill" title="remove" onclick="killRow(\''+r.id+'\')">&times;</button>'+
+        '</div>'+
+        '<div class="bar'+(rpc>=100?" full":"")+'"><i style="width:'+Math.min(100,rpc)+'%"></i></div>'+
+        driftLine(g,r)+
+      '</div>';
+    });
+
+    out+='<button class="addrow" onclick="addRow(\''+g.key+'\')">+ add to '+esc(g.label.toLowerCase())+'</button></div>';
+  });
+  document.getElementById("sections").innerHTML=out;
+
+  renderHistory();
+}
+
+function driftLine(g,r){
+  if(!g.weights||r.weight===null||r.weight===undefined)return "";
+  var gh=heldOf(g.key);
+  var actual=gh?r.amount/gh*100:0;
+  var d=actual-r.weight;
+  var cls=d>=0?"over":"under";
+  var sign=d>=0?"+":"−";
+  return '<div class="r-drift">weight <b>'+actual.toFixed(1)+'%</b> '+
+    'against a target of <input class="num wt" value="'+r.weight+'" inputmode="decimal" '+
+      'onblur="setWt(\''+r.id+'\',this)" onkeydown="if(event.key===\'Enter\')this.blur()">% '+
+    '&middot; <b class="'+cls+'">'+sign+Math.abs(d).toFixed(1)+'</b> points</div>';
+}
+
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+
+/* ── edits ── */
+function raw(el){el.value=el.value.replace(/,/g,"");el.select();}
+function find(id){for(var i=0;i<S.rows.length;i++)if(S.rows[i].id===id)return S.rows[i];return null;}
+function setName(id,v){var r=find(id);if(r){r.name=v;save();}}
+function setAmt(id,el){var r=find(id);if(!r)return;r.amount=parseNum(el.value);save();render();}
+function setTgt(id,el){var r=find(id);if(!r)return;r.target=parseNum(el.value);save();render();}
+function setWt(id,el){var r=find(id);if(!r)return;var v=parseFloat(el.value);r.weight=isNaN(v)?null:v;save();render();}
+function killRow(id){
+  var r=find(id); if(!r)return;
+  if(!confirm("Remove "+r.name+"?"))return;
+  S.rows=S.rows.filter(function(x){return x.id!==id;});
+  save();render();
+}
+function addRow(g){
+  var grp=null;
+  for(var i=0;i<S.groups.length;i++)if(S.groups[i].key===g)grp=S.groups[i];
+  S.rows.push({id:"r"+Date.now().toString(36),group:g,name:"New",amount:0,target:0,
+    weight:grp&&grp.weights?0:null});
+  save();render();
+}
+
+/* ─────────────────────────────────────────────────────────────
+   History
+   ───────────────────────────────────────────────────────────── */
+function setSeries(s){
+  SERIES=s;
+  document.getElementById("cPort").classList.toggle("on",s==="portfolio");
+  document.getElementById("cTot").classList.toggle("on",s==="total");
+  renderHistory();
+}
+function togglePts(){
+  SHOWPTS=!SHOWPTS;
+  document.getElementById("pts").style.display=SHOWPTS?"block":"none";
+  document.getElementById("ptsBtn").textContent=SHOWPTS?"Hide points":"Show points";
+}
+function addSnap(){
+  var d=document.getElementById("snapDate").value;
+  if(!d){alert("Pick a date first.");return;}
+  var p=heldOf("port"), t=heldAll();
+  var ex=null;
+  for(var i=0;i<S.history.length;i++)if(S.history[i].date===d)ex=S.history[i];
+  if(ex){
+    if(!confirm("There is already a point for "+d+". Replace it?"))return;
+    ex.portfolio=p; ex.total=t;
+  }else{
+    S.history.push({date:d,portfolio:p,total:t});
+  }
+  S.history.sort(function(a,b){return a.date<b.date?-1:1;});
+  save();renderHistory();
+}
+function killPt(d){
+  if(!confirm("Remove the point for "+d+"?"))return;
+  S.history=S.history.filter(function(x){return x.date!==d;});
+  save();renderHistory();
+}
+
+function monthLabel(iso){
+  var M=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  var p=iso.split("-");
+  return M[parseInt(p[1],10)-1]+" "+p[2].replace(/^0/,"");
+}
+
+function renderHistory(){
+  var pts=S.history.filter(function(h){
+    var v=SERIES==="portfolio"?h.portfolio:h.total;
+    return v!==null&&v!==undefined&&!isNaN(v);
+  }).map(function(h){
+    return {date:h.date,v:SERIES==="portfolio"?h.portfolio:h.total};
+  });
+
+  // headline: change since the first point of this series
+  var meta="";
+  if(pts.length>1){
+    var a=pts[0].v, b=pts[pts.length-1].v, d=b-a;
+    var goal=SERIES==="portfolio"?targetOf("port"):targetAll();
+    meta=(d>=0?"+":"−")+"Rp "+fmt(Math.abs(d))+" since "+monthLabel(pts[0].date)+
+      (goal?" · "+pctTxt(pct(b,goal))+" of "+rp(goal):"");
+  }else if(pts.length===1){
+    meta="one point so far";
+  }else{
+    meta="nothing recorded yet";
+  }
+  document.getElementById("hMeta").textContent=meta;
+
+  drawChart(pts);
+
+  var out="";
+  S.history.slice().reverse().forEach(function(h){
+    out+='<div class="pt"><span class="d">'+monthLabel(h.date)+" "+h.date.slice(0,4)+'</span>'+
+      '<span class="v">'+rp(h.portfolio)+
+      (h.total?'<em>'+rp(h.total)+' in all</em>':'<em>portfolio only</em>')+'</span>'+
+      '<button class="kill" onclick="killPt(\''+h.date+'\')">&times;</button></div>';
+  });
+  document.getElementById("pts").innerHTML=out||'<div class="note">No points yet.</div>';
+}
+
+/* The chart is drawn by hand so it carries no library.
+   Width is measured each time, so it survives a resize and a narrow phone. */
+function drawChart(pts){
+  var svg=document.getElementById("chart");
+  var W=svg.clientWidth||svg.parentNode.clientWidth||600, H=190;
+  svg.setAttribute("viewBox","0 0 "+W+" "+H);
+  svg.innerHTML="";
+  if(!pts.length){
+    svg.innerHTML='<text x="0" y="'+(H/2)+'" fill="#847A67" font-size="13" font-style="italic" '+
+      'font-family="Spectral,Georgia,serif">Nothing to draw yet.</text>';
+    return;
+  }
+
+  var goal = SERIES==="portfolio" ? targetOf("port") : targetAll();
+  var padL=0, padR=8, padT=16, padB=26;
+
+  var vals=pts.map(function(p){return p.v;});
+  var lo=Math.min.apply(null,vals), hi=Math.max.apply(null,vals);
+  // Draw the target only once it is close; far off, it would flatten the line.
+  var showGoal = goal>0 && goal<=hi*1.3;
+  if(showGoal) hi=Math.max(hi,goal);
+  lo=Math.min(lo,hi*0.72);                        // breathing room below
+  if(hi===lo)hi=lo+1;
+
+  var x=function(i){ return padL + (pts.length===1 ? (W-padL-padR)/2
+                                   : i*(W-padL-padR)/(pts.length-1)); };
+  var y=function(v){ return padT + (hi-v)/(hi-lo)*(H-padT-padB); };
+
+  var ns="http://www.w3.org/2000/svg";
+  function add(tag,attrs,text){
+    var e=document.createElementNS(ns,tag);
+    for(var k in attrs)e.setAttribute(k,attrs[k]);
+    if(text!==undefined)e.textContent=text;
+    svg.appendChild(e);return e;
+  }
+
+  // the goal, a quiet dashed rule
+  if(showGoal){
+    var gy=y(goal);
+    add("line",{x1:padL,y1:gy,x2:W-padR,y2:gy,stroke:"#332C1E","stroke-width":1,"stroke-dasharray":"3 4"});
+    add("text",{x:W-padR,y:gy-6,fill:"#847A67","font-size":11,"text-anchor":"end",
+      "font-family":"Spectral,Georgia,serif","font-style":"italic"},"target "+rp(goal));
+  }
+
+  // the line itself
+  if(pts.length>1){
+    var d="";
+    pts.forEach(function(p,i){ d+=(i?"L":"M")+x(i).toFixed(1)+" "+y(p.v).toFixed(1)+" "; });
+    // soft fill beneath
+    var fill=d+"L"+x(pts.length-1).toFixed(1)+" "+(H-padB)+" L"+x(0).toFixed(1)+" "+(H-padB)+" Z";
+    add("path",{d:fill,fill:"rgba(203,70,50,.09)",stroke:"none"});
+    add("path",{d:d,fill:"none",stroke:"#CB4632","stroke-width":1.6,
+      "stroke-linejoin":"round","stroke-linecap":"round"});
+  }
+
+  // points, with the last one named
+  pts.forEach(function(p,i){
+    var last=i===pts.length-1;
+    add("circle",{cx:x(i),cy:y(p.v),r:last?3.4:2.2,fill:last?"#CB4632":"#14110B",
+      stroke:"#CB4632","stroke-width":1.4});
+    add("text",{x:x(i),y:H-9,fill:"#847A67","font-size":11,"text-anchor":
+      i===0?"start":(last?"end":"middle"),"font-family":"Spectral,Georgia,serif"},monthLabel(p.date));
+  });
+
+  var lastP=pts[pts.length-1];
+  // Put the label below the point when the line arrives level or from above, so it never sits on the line.
+  var prev=pts.length>1?pts[pts.length-2].v:-Infinity;
+  var ly=y(lastP.v)-11;
+  if(ly<14||prev>=lastP.v*0.97)ly=y(lastP.v)+20;
+  add("text",{x:x(pts.length-1)-4,y:ly,fill:"#ECE2CE","font-size":13,
+    "text-anchor":"end","font-family":"Cormorant Garamond,Georgia,serif","font-weight":600},rp(lastP.v));
+}
+
+var rt;
+window.addEventListener("resize",function(){clearTimeout(rt);rt=setTimeout(renderHistory,140);});
+
+/* ─────────────────────────────────────────────────────────────
+   Carrying the data in and out
+   ───────────────────────────────────────────────────────────── */
+function doExport(){
+  var blob=new Blob([JSON.stringify(S,null,2)],{type:"application/json"});
+  var a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download="networth-"+new Date().toISOString().slice(0,10)+".json";
+  a.click();
+  setTimeout(function(){URL.revokeObjectURL(a.href);},2000);
+}
+function doImport(input){
+  var f=input.files&&input.files[0]; if(!f)return;
+  var fr=new FileReader();
+  fr.onload=function(){
+    try{
+      var o=JSON.parse(fr.result);
+      if(!o||!o.rows||!o.groups)throw 0;
+      if(!confirm("Replace everything on this device with the file?"))return;
+      S=o; save(); render();
+    }catch(e){alert("That file is not a net worth export.");}
+    input.value="";
+  };
+  fr.readAsText(f);
+}
+function wipe(){
+  if(!confirm("Put everything back to the figures this page was built with?"))return;
+  S=JSON.parse(JSON.stringify(SEED)); save(); render();
+}
+
+/* ── go ── */
+document.getElementById("snapDate").value=new Date().toISOString().slice(0,10);
+render();
+</script>
+</body>
+</html>

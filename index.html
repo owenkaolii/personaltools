@@ -86,7 +86,7 @@ body.open .seam{color:var(--cinnabar);text-shadow:0 0 14px rgba(203,70,50,.45)}
   margin-top:0;max-height:0;opacity:0;overflow:hidden;
   transition:max-height 1.15s cubic-bezier(.22,.61,.36,1), opacity .95s ease .18s, margin-top 1.15s cubic-bezier(.22,.61,.36,1);
 }
-body.open .veil{max-height:340px;opacity:1;margin-top:2.5rem}
+body.open .veil{max-height:400px;opacity:1;margin-top:2.5rem}
 
 .rule{
   height:1px;background:var(--cinnabar);opacity:.5;
@@ -106,6 +106,10 @@ body.open .rule{width:100%}
 body.open .entry{opacity:1;transform:none}
 body.open .entry:nth-of-type(1){transition-delay:.42s}
 body.open .entry:nth-of-type(2){transition-delay:.56s}
+body.open .entry:nth-of-type(3){transition-delay:.70s}
+body.open .entry:nth-of-type(4){transition-delay:.84s}
+body.open .entry:nth-of-type(5){transition-delay:.98s}
+body.open .entry:nth-of-type(6){transition-delay:1.12s}
 .entry:last-of-type{border-bottom:none}
 .entry:hover{color:var(--ink);border-color:var(--cinnabar)}
 .entry .n{font-family:var(--display);font-size:20px;font-weight:500;flex:1}
@@ -222,6 +226,10 @@ body.drain{background:#0B0906}
     <a class="entry" href="calendar.html">
       <span class="n">Calendar</span>
       <span class="g">printable, by month</span>
+    </a>
+    <a class="entry" href="networth.html">
+      <span class="n">Net Worth</span>
+      <span class="g">held, against what it is for</span>
     </a>
   </div>
 
