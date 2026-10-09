@@ -107,6 +107,13 @@ body{background:var(--bg);color:var(--ink);font-family:var(--serif);
 .note{font-size:12.5px;color:var(--ink3);font-style:italic;line-height:1.65;
   border-left:1px solid var(--rule);padding-left:12px;margin-top:1rem}
 
+/* ── the gate ── */
+.gate{margin-top:.4rem}
+.gate .lbl{font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink3);margin-bottom:.9rem}
+.gate form{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;margin-bottom:.9rem}
+.gate .ctl{width:220px;max-width:100%}
+.gate .err{font-size:13px;font-style:italic;color:var(--cinnabar);min-height:1.2em;margin-bottom:.6rem}
+
 .foot{margin-top:3rem;padding-top:1.3rem;border-top:1px solid var(--rule);
   display:flex;gap:.6rem;flex-wrap:wrap;align-items:center}
 .foot .said{font-size:12.5px;color:var(--ink3);font-style:italic;margin-left:auto}
@@ -134,6 +141,19 @@ body{animation:pt-arrive 760ms ease both}
     <p>What is held, against what it is for</p>
   </div>
 
+  <div class="gate" id="gate" style="display:none">
+    <div class="lbl" id="gLbl">Locked</div>
+    <form id="gForm" onsubmit="gateSubmit(event)">
+      <input class="ctl" type="password" id="gPw" placeholder="password" autocomplete="current-password">
+      <input class="ctl" type="password" id="gPw2" placeholder="again" autocomplete="new-password" style="display:none">
+      <button class="btn" type="submit" id="gBtn">Open</button>
+    </form>
+    <div class="err" id="gErr"></div>
+    <button class="btn q" onclick="document.getElementById('imp').click()">Import a file</button>
+    <div class="note" id="gNote"></div>
+  </div>
+
+  <div id="app" style="display:none">
   <div class="total">
     <div class="lbl">Held</div>
     <div class="big" id="tHeld">&mdash;</div>
@@ -171,65 +191,150 @@ body{animation:pt-arrive 760ms ease both}
   <div class="foot">
     <button class="btn q" onclick="doExport()">Export</button>
     <button class="btn q" onclick="document.getElementById('imp').click()">Import</button>
-    <input type="file" id="imp" accept=".json" style="display:none" onchange="doImport(this)">
-    <button class="btn q" onclick="wipe()">Reset</button>
+    <button class="btn q" onclick="lock()">Lock</button>
+    <button class="btn q" onclick="forget()">Forget this device</button>
     <span class="said" id="saved"></span>
   </div>
+  </div>
+  <input type="file" id="imp" accept=".json" style="display:none" onchange="doImport(this)">
 </div>
 
 <script>
 "use strict";
 
 /* ─────────────────────────────────────────────────────────────
-   State. Everything lives in one object, saved to localStorage.
-   Seeded from the figures of 9 October 2026.
-   ───────────────────────────────────────────────────────────── */
-var KEY="networth_v1";
+   State. The page holds no figures of its own. They arrive in an
+   import file, and are kept on this device only in encrypted form:
+   AES-GCM, with the key drawn from a password by PBKDF2.
+   The password never leaves the browser and cannot be recovered.
+   ───────────────────────────────────────────────────────────────── */
+var EKEY="networth_enc_v1";     // the encrypted store
+var OLDKEY="networth_v1";       // plain store from before the lock existed
+var ITER=600000;
 
-var SEED={
-  v:1,
-  groups:[
-    {key:"edu",  label:"Sister's education", weights:false},
-    {key:"cash", label:"Emergency fund",     weights:false},
-    {key:"port", label:"Portfolio",          weights:true}
-  ],
-  rows:[
-    {id:"r1", group:"edu",  name:"RDPU", amount:14895450, target:15000000, weight:null},
-    {id:"r2", group:"cash", name:"Cash", amount:1943778,  target:13500000, weight:null},
-    {id:"r3", group:"port", name:"BTC",  amount:6912437,  target:15000000, weight:30},
-    {id:"r4", group:"port", name:"SCHD", amount:5462469,  target:12500000, weight:25},
-    {id:"r5", group:"port", name:"VEA",  amount:3712756,  target:11250000, weight:22.5},
-    {id:"r6", group:"port", name:"VWO",  amount:3767560,  target:11250000, weight:22.5}
-  ],
-  history:[
-    {date:"2026-06-02", portfolio:16388358, total:null},
-    {date:"2026-07-02", portfolio:18003866, total:null},
-    {date:"2026-08-01", portfolio:18820006, total:null},
-    {date:"2026-09-02", portfolio:19905539, total:null},
-    {date:"2026-10-09", portfolio:19855222, total:36694450}
-  ]
-};
-
-var S=load();
+var S=null;          // the figures, only while unlocked
+var CK=null;         // the derived key, only while unlocked
+var SALT=null;
+var PW=null;         // kept to open encrypted imports made with the same password
+var PENDING=null;    // plain figures waiting for a password
+var PBLOB=null;      // an encrypted file waiting for its password
+var MODE="empty";    // empty | unlock | set
 var SERIES="portfolio";
 var SHOWPTS=false;
 
-function load(){
-  try{
-    var raw=localStorage.getItem(KEY);
-    if(!raw)return JSON.parse(JSON.stringify(SEED));
-    var o=JSON.parse(raw);
-    if(!o||!o.rows)return JSON.parse(JSON.stringify(SEED));
-    return o;
-  }catch(e){return JSON.parse(JSON.stringify(SEED));}
+/* ── crypto ── */
+function b64(u8){var s="";for(var i=0;i<u8.length;i++)s+=String.fromCharCode(u8[i]);return btoa(s);}
+function unb64(t){var b=atob(t),u=new Uint8Array(b.length);for(var i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return u;}
+function rnd(n){return crypto.getRandomValues(new Uint8Array(n));}
+async function deriveKey(pw,salt,iter){
+  var base=await crypto.subtle.importKey("raw",new TextEncoder().encode(pw),"PBKDF2",false,["deriveKey"]);
+  return crypto.subtle.deriveKey({name:"PBKDF2",salt:salt,iterations:iter,hash:"SHA-256"},
+    base,{name:"AES-GCM",length:256},false,["encrypt","decrypt"]);
 }
-var saveTimer;
-function save(){
-  try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}
+async function seal(obj){
+  var iv=rnd(12);
+  var ct=await crypto.subtle.encrypt({name:"AES-GCM",iv:iv},CK,new TextEncoder().encode(JSON.stringify(obj)));
+  return {networth:"enc-v1",iter:ITER,salt:b64(SALT),iv:b64(iv),ct:b64(new Uint8Array(ct))};
+}
+async function open_(blob,pw){
+  var salt=unb64(blob.salt), key=await deriveKey(pw,salt,blob.iter||ITER);
+  var pt=await crypto.subtle.decrypt({name:"AES-GCM",iv:unb64(blob.iv)},key,unb64(blob.ct));
+  return {obj:JSON.parse(new TextDecoder().decode(pt)),key:key,salt:salt};
+}
+function isSealed(o){return o&&o.networth==="enc-v1"&&o.ct&&o.iv&&o.salt;}
+function isPlain(o){return o&&Array.isArray(o.rows)&&Array.isArray(o.groups);}
+function readStore(){try{var r=localStorage.getItem(EKEY);var o=r&&JSON.parse(r);return isSealed(o)?o:null;}catch(e){return null;}}
+
+var saveSeq=0, saveTimer;
+async function save(){
+  if(!S||!CK)return;
+  var my=++saveSeq, blob=await seal(S);
+  if(my!==saveSeq)return;                         // a newer save has overtaken this one
+  try{localStorage.setItem(EKEY,JSON.stringify(blob));}catch(e){}
   var el=document.getElementById("saved");
   el.textContent="saved";
   clearTimeout(saveTimer);
   saveTimer=setTimeout(function(){el.textContent="";},1600);
+}
+
+/* Holdings come from the file; history points are added to what is already here,
+   the file winning on a date both carry. */
+function merge(base,inc){
+  var out=JSON.parse(JSON.stringify(inc));
+  out.history=out.history||[];
+  if(!base)return out;
+  if(!out.rows.length){out.rows=base.rows;out.groups=base.groups;}
+  var byDate={};
+  (base.history||[]).forEach(function(h){byDate[h.date]=h;});
+  out.history.forEach(function(h){byDate[h.date]=h;});
+  out.history=Object.keys(byDate).sort().map(function(d){return byDate[d];});
+  return out;
+}
+
+/* ── the gate ── */
+function showGate(mode,note){
+  MODE=mode;
+  document.getElementById("app").style.display="none";
+  document.getElementById("gate").style.display="block";
+  document.getElementById("sections").innerHTML="";
+  var f=document.getElementById("gForm"), pw=document.getElementById("gPw"), pw2=document.getElementById("gPw2");
+  pw.value="";pw2.value="";
+  document.getElementById("gErr").textContent="";
+  f.style.display=mode==="empty"?"none":"flex";
+  pw2.style.display=mode==="set"?"":"none";
+  pw.autocomplete=mode==="set"?"new-password":"current-password";
+  document.getElementById("gBtn").textContent=mode==="set"?"Lock it":"Open";
+  document.getElementById("gLbl").textContent=
+    mode==="set"?"Choose a password":mode==="unlock"?"Locked":"Nothing here yet";
+  document.getElementById("gNote").textContent=note||(
+    mode==="set"?"The figures are encrypted with this password. It cannot be recovered; forget it, and you will need this month's file again."
+   :mode==="unlock"?"Open with your password, or import a file."
+   :"Import this month's file to begin.");
+  if(mode!=="empty")pw.focus();
+}
+function showApp(){
+  document.getElementById("gate").style.display="none";
+  document.getElementById("app").style.display="block";
+  render();
+}
+async function gateSubmit(e){
+  e.preventDefault();
+  var pw=document.getElementById("gPw").value, err=document.getElementById("gErr"), btn=document.getElementById("gBtn");
+  if(!pw){err.textContent="A password, first.";return;}
+  if(MODE==="set"){
+    if(pw!==document.getElementById("gPw2").value){err.textContent="The two do not match.";return;}
+    if(pw.length<10){err.textContent="Ten characters at least. Longer is better.";return;}
+    btn.disabled=true;err.textContent="";
+    SALT=rnd(16);CK=await deriveKey(pw,SALT,ITER);PW=pw;
+    S=PENDING;PENDING=null;
+    await save();
+    try{localStorage.removeItem(OLDKEY);}catch(x){}
+    btn.disabled=false;showApp();
+    return;
+  }
+  var blob=PBLOB||readStore();
+  if(!blob){showGate("empty");return;}
+  btn.disabled=true;btn.textContent="Opening…";err.textContent="";
+  try{
+    var r=await open_(blob,pw);
+    if(!isPlain(r.obj))throw 0;
+    CK=r.key;SALT=r.salt;PW=pw;S=r.obj;PBLOB=null;
+    await save();
+    btn.disabled=false;showApp();
+  }catch(x){
+    btn.disabled=false;btn.textContent="Open";
+    err.textContent="That password does not open it.";
+  }
+}
+function lock(){
+  S=null;CK=null;SALT=null;PW=null;
+  showGate("unlock");
+}
+function forget(){
+  if(!confirm("Remove the figures from this device? Keep an export or this month's file, or they are gone."))return;
+  try{localStorage.removeItem(EKEY);localStorage.removeItem(OLDKEY);}catch(e){}
+  S=null;CK=null;SALT=null;PW=null;
+  showGate("empty");
 }
 
 /* ── numbers ── */
@@ -485,41 +590,61 @@ function drawChart(pts){
 }
 
 var rt;
-window.addEventListener("resize",function(){clearTimeout(rt);rt=setTimeout(renderHistory,140);});
+window.addEventListener("resize",function(){clearTimeout(rt);rt=setTimeout(function(){if(S)renderHistory();},140);});
 
 /* ─────────────────────────────────────────────────────────────
    Carrying the data in and out
    ───────────────────────────────────────────────────────────── */
-function doExport(){
-  var blob=new Blob([JSON.stringify(S,null,2)],{type:"application/json"});
+async function doExport(){
+  if(!S||!CK)return;
+  var blob=new Blob([JSON.stringify(await seal(S),null,2)],{type:"application/json"});
   var a=document.createElement("a");
   a.href=URL.createObjectURL(blob);
-  a.download="networth-"+new Date().toISOString().slice(0,10)+".json";
+  a.download="networth-"+new Date().toISOString().slice(0,10)+".locked.json";
   a.click();
   setTimeout(function(){URL.revokeObjectURL(a.href);},2000);
 }
 function doImport(input){
   var f=input.files&&input.files[0]; if(!f)return;
   var fr=new FileReader();
-  fr.onload=function(){
-    try{
-      var o=JSON.parse(fr.result);
-      if(!o||!o.rows||!o.groups)throw 0;
-      if(!confirm("Replace everything on this device with the file?"))return;
-      S=o; save(); render();
-    }catch(e){alert("That file is not a net worth export.");}
+  fr.onload=async function(){
     input.value="";
+    var o;
+    try{o=JSON.parse(fr.result);}catch(e){alert("That file is not a net worth file.");return;}
+    if(!isPlain(o)&&!isSealed(o)){alert("That file is not a net worth file.");return;}
+
+    if(!S){                                       // at the gate
+      if(isPlain(o)){PENDING=merge(null,o);showGate("set");}
+      else{PBLOB=o;showGate("unlock","This file is locked. Open it with the password it was made with.");}
+      return;
+    }
+    if(isSealed(o)){                              // unlocked, an encrypted file
+      try{o=(await open_(o,PW)).obj;}
+      catch(e){alert("That file was locked with a different password. Lock this page, then import it.");return;}
+    }
+    if(!confirm("Bring in this file? Holdings are replaced; its history points are added."))return;
+    S=merge(S,o); await save(); render();
+    alert("Done. You can delete the file now.");
   };
   fr.readAsText(f);
-}
-function wipe(){
-  if(!confirm("Put everything back to the figures this page was built with?"))return;
-  S=JSON.parse(JSON.stringify(SEED)); save(); render();
 }
 
 /* ── go ── */
 document.getElementById("snapDate").value=new Date().toISOString().slice(0,10);
-render();
+(function(){
+  if(!window.crypto||!crypto.subtle){
+    showGate("empty","This browser cannot encrypt here. Open the page over https.");
+    document.getElementById("gate").querySelector(".btn.q").style.display="none";
+    return;
+  }
+  if(readStore()){showGate("unlock");return;}
+  try{                                            // figures saved before the lock existed
+    var old=JSON.parse(localStorage.getItem(OLDKEY)||"null");
+    if(isPlain(old)){PENDING=merge(null,old);
+      showGate("set","Figures from before the lock are saved on this device. Choose a password to lock them.");return;}
+  }catch(e){}
+  showGate("empty");
+})();
 </script>
 </body>
 </html>
