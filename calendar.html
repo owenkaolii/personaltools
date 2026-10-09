@@ -11,7 +11,7 @@
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
   --bg:#14110B;--ink:#ECE2CE;--ink2:#B9AE97;--ink3:#847A67;
-  --rule:#332C1E;--rule2:#221D14;--cinnabar:#CB4632;
+  --rule:#332C1E;--rule2:#221D14;--cinnabar:#CB4632;--jade:#6E8F6A;
   --serif:'Spectral',Georgia,serif;--display:'Cormorant Garamond',Georgia,serif;
   /* paper */
   --p-ink:#1A1814;--p-line:#D8D3C9;--p-soft:#EAE6DE;--p-mute:#9A958C;--p-faint:#DAD5CB;--p-sun:#B4231F;
@@ -37,6 +37,72 @@ body{background:var(--bg);color:var(--ink);font-family:var(--serif);padding:2rem
 .hint{font-size:12.5px;color:var(--ink3);font-style:italic;line-height:1.65;margin-bottom:1.8rem;
   border-left:1px solid var(--rule);padding-left:12px}
 .hint b{font-style:normal;font-weight:500;color:var(--ink2)}
+
+/* ── the year, counted ── */
+.sec{margin-bottom:2.4rem;max-width:760px}
+.sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:1rem;
+  padding-bottom:.55rem;border-bottom:1px solid var(--rule);margin-bottom:.3rem}
+.sec-head h2{font-family:var(--display);font-size:21px;font-weight:600;letter-spacing:.01em}
+.sec-head .meta{font-size:12.5px;color:var(--ink3);font-style:italic;text-align:right}
+.yr{margin-bottom:2.4rem;max-width:760px}
+.yr .big{font-family:var(--display);font-size:clamp(30px,7vw,42px);font-weight:600;line-height:1.05}
+.yr .sub{font-style:italic;font-size:14px;color:var(--ink2);margin-top:.35rem}
+.yr .sub b{font-style:normal;font-weight:500;color:var(--cinnabar)}
+.bar{height:3px;background:var(--rule);position:relative;margin-top:.9rem;overflow:hidden}
+.bar i{position:absolute;left:0;top:0;bottom:0;background:var(--cinnabar)}
+.seam{cursor:pointer;padding:.3em .4em;margin:-.3em -.3em;transition:color .6s ease,text-shadow .6s ease}
+.seam:hover{color:var(--cinnabar)}
+body.open .seam{color:var(--cinnabar);text-shadow:0 0 14px rgba(203,70,50,.45)}
+
+/* the key: a bare rule, nothing more */
+.key{max-height:0;overflow:hidden;opacity:0;transition:max-height .8s cubic-bezier(.22,.61,.36,1),opacity .6s ease}
+.key.on{max-height:60px;opacity:1}
+.key input{font-family:var(--serif);font-size:15px;color:var(--ink);background:none;border:none;
+  border-bottom:1px solid var(--rule);width:160px;padding:6px 2px;margin:.9rem 0 .2rem;letter-spacing:.2em}
+.key input:focus{outline:none;border-color:var(--cinnabar)}
+.key.no input{animation:no .32s ease}
+@keyframes no{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+
+#priv{display:none}
+body.open #priv{display:block}
+
+.row{display:flex;align-items:baseline;gap:.8rem;padding:.75rem 0;border-bottom:1px solid var(--rule2)}
+.row:last-of-type{border-bottom:none}
+.row.past{opacity:.45}
+.r-name{font-family:var(--display);font-size:18px;font-weight:500;background:none;border:none;
+  color:var(--ink);padding:0;flex:1;min-width:0}
+.r-name:focus{outline:none;color:var(--cinnabar)}
+.r-date{font-family:var(--serif);font-size:13px;color:var(--ink2);background:none;border:none;
+  border-bottom:1px solid var(--rule);padding:1px 2px;color-scheme:dark}
+.r-date:focus{outline:none;border-color:var(--cinnabar)}
+.r-left{font-family:var(--display);font-size:19px;font-weight:600;color:var(--cinnabar);
+  white-space:nowrap;min-width:84px;text-align:right}
+.r-left.soon{color:var(--ink)}
+.kill{background:none;border:none;color:var(--rule);cursor:pointer;font-size:16px;
+  padding:0 .35rem;line-height:1;transition:color .25s ease;font-family:var(--serif)}
+.row:hover .kill{color:var(--ink3)}
+.kill:hover{color:var(--cinnabar)!important}
+.addrow{background:none;border:none;font-family:var(--serif);font-style:italic;font-size:13px;
+  color:var(--ink3);cursor:pointer;padding:.6rem 0 0}
+.addrow:hover{color:var(--cinnabar)}
+
+.life-in{display:flex;gap:1.2rem;flex-wrap:wrap;align-items:baseline;margin:.9rem 0 1.1rem;font-size:13px;color:var(--ink3)}
+.life-in input{font-family:var(--serif);font-size:14px;color:var(--ink);background:none;border:none;
+  border-bottom:1px solid var(--rule);padding:1px 2px;color-scheme:dark}
+.life-in input:focus{outline:none;border-color:var(--cinnabar)}
+#grid{display:block;width:100%;max-width:460px}
+.note{font-size:12.5px;color:var(--ink3);font-style:italic;line-height:1.65;
+  border-left:1px solid var(--rule);padding-left:12px;margin-top:1rem}
+.pfoot{display:flex;gap:1.2rem;flex-wrap:wrap;margin:-1rem 0 2.6rem}
+.pfoot button{background:none;border:none;font-family:var(--serif);font-style:italic;font-size:12.5px;
+  color:var(--ink3);cursor:pointer;padding:0}
+.pfoot button:hover{color:var(--cinnabar)}
+.said{font-size:12.5px;color:var(--ink3);font-style:italic}
+@media(max-width:560px){
+  .row{flex-wrap:wrap}
+  .r-name{flex-basis:100%}
+  .r-left{margin-left:auto}
+}
 
 /* ── the printable sheet: always paper-coloured ── */
 .sheet{
@@ -82,7 +148,42 @@ td.blank{background:#FCFBF8}
   <a class="back" href="index.html">&larr; back</a>
   <div class="masthead">
     <h1>Calendar</h1>
-    <p>One month to a page &mdash; landscape, for printing</p>
+    <p>The year, counted &mdash; and printed, a month to a page</p>
+  </div>
+
+  <div class="yr">
+    <div class="big" id="yBig">&mdash;</div>
+    <div class="sub" id="ySub">&mdash;</div>
+    <div class="bar"><i id="yBar" style="width:0"></i></div>
+    <form class="key" id="key" onsubmit="keySubmit(event)" autocomplete="off">
+      <input type="password" id="kPw" aria-label="key" autocomplete="current-password">
+    </form>
+  </div>
+
+  <div id="priv">
+    <div class="sec">
+      <div class="sec-head"><h2>Until</h2><div class="meta" id="cMeta"></div></div>
+      <div id="rows"></div>
+      <button class="addrow" onclick="addEv()">+ add a date</button>
+    </div>
+
+    <div class="sec">
+      <div class="sec-head"><h2>Weeks</h2><div class="meta" id="lMeta"></div></div>
+      <div class="life-in">
+        <label>born <input type="date" id="birth" onchange="setBirth(this.value)"></label>
+        <label>to <input type="number" id="span" min="1" max="120" style="width:52px" onchange="setSpan(this.value)"> years</label>
+      </div>
+      <svg id="grid"></svg>
+      <div class="note">One row a year, one mark a week. What is spent does not return.</div>
+    </div>
+
+    <div class="pfoot">
+      <button onclick="doExport()">export</button>
+      <button onclick="document.getElementById('imp').click()">import</button>
+      <button onclick="forget()">forget this device</button>
+      <span class="said" id="saved"></span>
+      <input type="file" id="imp" accept=".json" style="display:none" onchange="doImport(this)">
+    </div>
   </div>
 
   <div class="controls">
@@ -166,6 +267,257 @@ function build(){
 
 fillSelects();
 build();
+
+/* ─────────────────────────────────────────────────────────────
+   The year, counted. Public: how much of the year is spent.
+   Private, behind the full stop: dates to count down to, and a
+   life in weeks. Those are kept on this device encrypted
+   (AES-GCM, key from the password by PBKDF2); nothing is in this file.
+   ───────────────────────────────────────────────────────────────── */
+var EKEY="calendar_enc_v1", ITER=600000;
+var P=null, CK=null, SALT=null, PW=null, FIRST=null;
+var DAY=864e5;
+
+function today(){var d=new Date();return new Date(d.getFullYear(),d.getMonth(),d.getDate());}
+function parseISO(s){var p=String(s||"").split("-");if(p.length!==3)return null;
+  var d=new Date(+p[0],+p[1]-1,+p[2]);return isNaN(d)?null:d;}
+function fmt(n){return String(n).replace(/\B(?=(\d{3})+(?!\d))/g,",");}
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+
+function renderYear(){
+  var t=today(), y=t.getFullYear();
+  var start=new Date(y,0,1), len=Math.round((new Date(y+1,0,1)-start)/DAY);
+  var day=Math.round((t-start)/DAY)+1, pc=(day-1)/len*100;
+  document.getElementById("yBig").textContent="Day "+day+" of "+len;
+  document.getElementById("ySub").innerHTML='<b>'+Math.floor(pc)+'%</b> of '+y+' spent'+
+    '<span class="seam" id="seam">.</span>';
+  document.getElementById("yBar").style.width=pc+"%";
+  document.getElementById("seam").onclick=seamTap;
+}
+
+/* ── crypto ── */
+function b64(u8){var s="";for(var i=0;i<u8.length;i++)s+=String.fromCharCode(u8[i]);return btoa(s);}
+function unb64(t){var b=atob(t),u=new Uint8Array(b.length);for(var i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return u;}
+function rnd(n){return crypto.getRandomValues(new Uint8Array(n));}
+async function deriveKey(pw,salt,iter){
+  var base=await crypto.subtle.importKey("raw",new TextEncoder().encode(pw),"PBKDF2",false,["deriveKey"]);
+  return crypto.subtle.deriveKey({name:"PBKDF2",salt:salt,iterations:iter,hash:"SHA-256"},
+    base,{name:"AES-GCM",length:256},false,["encrypt","decrypt"]);
+}
+async function seal(obj){
+  var iv=rnd(12);
+  var ct=await crypto.subtle.encrypt({name:"AES-GCM",iv:iv},CK,new TextEncoder().encode(JSON.stringify(obj)));
+  return {calendar:"enc-v1",iter:ITER,salt:b64(SALT),iv:b64(iv),ct:b64(new Uint8Array(ct))};
+}
+async function open_(blob,pw){
+  var salt=unb64(blob.salt), key=await deriveKey(pw,salt,blob.iter||ITER);
+  var pt=await crypto.subtle.decrypt({name:"AES-GCM",iv:unb64(blob.iv)},key,unb64(blob.ct));
+  return {obj:JSON.parse(new TextDecoder().decode(pt)),key:key,salt:salt};
+}
+function isSealed(o){return o&&o.calendar==="enc-v1"&&o.ct&&o.iv&&o.salt;}
+function isPlain(o){return o&&Array.isArray(o.events);}
+function readStore(){try{var r=localStorage.getItem(EKEY);var o=r&&JSON.parse(r);return isSealed(o)?o:null;}catch(e){return null;}}
+
+var saveSeq=0, saveTimer;
+async function save(){
+  if(!P||!CK)return;
+  var my=++saveSeq, blob=await seal(P);
+  if(my!==saveSeq)return;
+  try{localStorage.setItem(EKEY,JSON.stringify(blob));}catch(e){}
+  var el=document.getElementById("saved");
+  el.textContent="saved";
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(function(){el.textContent="";},1600);
+}
+
+/* ── the session key ──
+   One password opens every locked page. Once given (here, on another page, or on
+   the index) it is held for this tab only, and gone when the tab closes or a page is locked. */
+var SKEY="pt_session";
+function sessGet(){try{return sessionStorage.getItem(SKEY);}catch(e){return null;}}
+function sessSet(pw){try{sessionStorage.setItem(SKEY,pw);}catch(e){}}
+function sessClear(){try{sessionStorage.removeItem(SKEY);}catch(e){}}
+
+/* ── the key ──
+   Tap the full stop: a bare line appears. Enter opens. Wrong, it shakes and clears.
+   The first time on a device, the password is typed twice to set it. */
+function seamTap(){
+  if(P){lockUp();return;}
+  if(!window.crypto||!crypto.subtle)return;
+  var k=document.getElementById("key"), on=!k.classList.contains("on");
+  k.classList.toggle("on",on);
+  FIRST=null;
+  if(on)setTimeout(function(){document.getElementById("kPw").focus();},80);
+}
+function no(){
+  var k=document.getElementById("key"), i=document.getElementById("kPw");
+  i.value="";k.classList.remove("no");void k.offsetWidth;k.classList.add("no");
+}
+async function keySubmit(e){
+  e.preventDefault();
+  var i=document.getElementById("kPw"), pw=i.value;
+  if(!pw){no();return;}
+  var blob=readStore();
+  if(!blob){                                      // first time on this device
+    if(FIRST===null){if(pw.length<10){no();return;}FIRST=pw;i.value="";return;}
+    if(pw!==FIRST){FIRST=null;no();return;}
+    SALT=rnd(16);CK=await deriveKey(pw,SALT,ITER);PW=pw;FIRST=null;
+    P={v:1,birth:null,span:80,events:[]};sessSet(pw);
+    await save();unlocked();return;
+  }
+  i.disabled=true;
+  try{
+    var r=await open_(blob,pw);
+    if(!isPlain(r.obj))throw 0;
+    CK=r.key;SALT=r.salt;PW=pw;P=r.obj;sessSet(pw);
+    i.disabled=false;unlocked();
+  }catch(x){i.disabled=false;no();}
+}
+function unlocked(){
+  var k=document.getElementById("key");
+  k.classList.remove("on");document.getElementById("kPw").value="";
+  document.body.classList.add("open");
+  renderPriv();
+}
+function lockUp(){
+  sessClear();
+  P=null;CK=null;SALT=null;PW=null;
+  document.body.classList.remove("open");
+  document.getElementById("rows").innerHTML="";
+  document.getElementById("grid").innerHTML="";
+  document.getElementById("birth").value="";
+  document.getElementById("span").value="";
+}
+function forget(){
+  if(!confirm("Remove these dates from this device? Keep an export, or they are gone."))return;
+  try{localStorage.removeItem(EKEY);}catch(e){}
+  lockUp();
+}
+
+/* ── countdowns ── */
+function daysTo(iso){var d=parseISO(iso);return d?Math.round((d-today())/DAY):null;}
+function leftTxt(n){
+  if(n===null)return "—";
+  if(n===0)return "today";
+  if(n>0)return fmt(n)+(n===1?" day":" days");
+  return fmt(-n)+(n===-1?" day ago":" days ago");
+}
+function sortEvents(){
+  P.events.sort(function(a,b){
+    var x=daysTo(a.date), y=daysTo(b.date);
+    if(x===null)return 1; if(y===null)return -1;
+    if((x<0)!==(y<0))return x<0?1:-1;             // what is ahead, first
+    return x<0?y-x:x-y;
+  });
+}
+function renderPriv(){
+  if(!P)return;
+  sortEvents();
+  var out="";
+  P.events.forEach(function(ev){
+    var n=daysTo(ev.date);
+    out+='<div class="row'+(n!==null&&n<0?" past":"")+'">'+
+      '<input class="r-name" value="'+esc(ev.name)+'" oninput="setEvName(\''+ev.id+'\',this.value)">'+
+      '<input class="r-date" type="date" value="'+esc(ev.date||"")+'" onchange="setEvDate(\''+ev.id+'\',this.value)">'+
+      '<span class="r-left'+(n!==null&&n>=0&&n<=7?" soon":"")+'">'+leftTxt(n)+'</span>'+
+      '<button class="kill" title="remove" onclick="killEv(\''+ev.id+'\')">&times;</button></div>';
+  });
+  document.getElementById("rows").innerHTML=out||'<div class="note">Nothing to count down to yet.</div>';
+  renderNext();
+  document.getElementById("birth").value=P.birth||"";
+  document.getElementById("span").value=P.span||80;
+  drawLife();
+}
+function renderNext(){
+  var next=P.events.filter(function(e){var n=daysTo(e.date);return n!==null&&n>=0;})[0];
+  document.getElementById("cMeta").textContent=next?"next: "+next.name+", "+leftTxt(daysTo(next.date)):"";
+}
+function findEv(id){for(var i=0;i<P.events.length;i++)if(P.events[i].id===id)return P.events[i];return null;}
+function setEvName(id,v){var e=findEv(id);if(e){e.name=v;save();renderNext();}}
+function setEvDate(id,v){var e=findEv(id);if(e){e.date=v;save();renderPriv();}}
+function killEv(id){
+  var e=findEv(id);if(!e)return;
+  if(!confirm("Remove "+e.name+"?"))return;
+  P.events=P.events.filter(function(x){return x.id!==id;});
+  save();renderPriv();
+}
+function addEv(){
+  var d=today();d.setDate(d.getDate()+30);
+  var iso=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+  P.events.push({id:"e"+Date.now().toString(36),name:"New",date:iso});
+  save();renderPriv();
+}
+
+/* ── a life in weeks ── */
+function setBirth(v){if(!P)return;P.birth=v||null;save();drawLife();}
+function setSpan(v){if(!P)return;var n=parseInt(v,10);P.span=isNaN(n)?80:Math.max(1,Math.min(120,n));save();drawLife();}
+function drawLife(){
+  var svg=document.getElementById("grid"), meta=document.getElementById("lMeta");
+  var b=parseISO(P&&P.birth);
+  if(!b){svg.innerHTML="";svg.removeAttribute("viewBox");svg.style.height="0";meta.textContent="";return;}
+  var span=P.span||80, t=today();
+  var age=t.getFullYear()-b.getFullYear();
+  var bday=new Date(t.getFullYear(),b.getMonth(),b.getDate());
+  if(bday>t){age--;bday=new Date(t.getFullYear()-1,b.getMonth(),b.getDate());}
+  var wk=Math.min(51,Math.floor((t-bday)/(7*DAY)));
+  var spent=Math.max(0,age*52+wk), total=span*52;
+
+  var C=10, R=C*0.32, padL=22, gap=C*0.7;
+  var W=padL+52*C, H=span*C+Math.floor((span-1)/10)*gap;
+  svg.setAttribute("viewBox","0 0 "+W+" "+H);
+  svg.style.height="auto";
+  var out="";
+  for(var y=0;y<span;y++){
+    var cy=y*C+Math.floor(y/10)*gap+C/2;
+    if(y%10===0)out+='<text x="0" y="'+(cy+3)+'" fill="#847A67" font-size="8" font-family="Spectral,Georgia,serif">'+y+'</text>';
+    for(var w=0;w<52;w++){
+      var i=y*52+w, cx=padL+w*C+C/2;
+      if(i<spent)out+='<circle cx="'+cx+'" cy="'+cy+'" r="'+R+'" fill="#847A67"/>';
+      else if(i===spent)out+='<circle cx="'+cx+'" cy="'+cy+'" r="'+(R+0.8)+'" fill="#CB4632"/>';
+      else out+='<circle cx="'+cx+'" cy="'+cy+'" r="'+R+'" fill="none" stroke="#332C1E" stroke-width="1"/>';
+    }
+  }
+  svg.innerHTML=out;
+  meta.textContent=spent>=total?"week "+fmt(spent+1):"week "+fmt(spent+1)+" of "+fmt(total)+" · "+fmt(total-spent-1)+" left";
+}
+
+/* ── carrying it between devices: exports are encrypted ── */
+async function doExport(){
+  if(!P||!CK)return;
+  var blob=new Blob([JSON.stringify(await seal(P),null,2)],{type:"application/json"});
+  var a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download="calendar-"+new Date().toISOString().slice(0,10)+".locked.json";
+  a.click();
+  setTimeout(function(){URL.revokeObjectURL(a.href);},2000);
+}
+function doImport(input){
+  var f=input.files&&input.files[0]; if(!f||!P)return;
+  var fr=new FileReader();
+  fr.onload=async function(){
+    input.value="";
+    var o;
+    try{o=JSON.parse(fr.result);}catch(e){alert("That file is not a calendar file.");return;}
+    if(isSealed(o)){
+      try{o=(await open_(o,PW)).obj;}
+      catch(e){alert("That file was locked with a different password.");return;}
+    }
+    if(!isPlain(o)){alert("That file is not a calendar file.");return;}
+    if(!confirm("Replace the dates here with the file?"))return;
+    P=o;await save();renderPriv();
+  };
+  fr.readAsText(f);
+}
+
+renderYear();
+(function(){                                      // already opened elsewhere this session
+  var blob=readStore(), sp=sessGet();
+  if(!blob||!sp||!window.crypto||!crypto.subtle)return;
+  open_(blob,sp).then(function(r){
+    if(!isPlain(r.obj))throw 0;
+    CK=r.key;SALT=r.salt;PW=sp;P=r.obj;unlocked();
+  }).catch(function(){});
+})();
 </script>
 </body>
 </html>
